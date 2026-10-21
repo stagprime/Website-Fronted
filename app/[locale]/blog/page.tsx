@@ -17,12 +17,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     <PageHero img={ai("page-blog")} kicker="Industry Insights" title="Guides from operators who do the work." sub="Practical, no-fluff guides from the team that runs its own SaaS, apps, print-on-demand stores and media channels." crumbs={[["Blog", "/blog"]]} />
     {showList && lead && <section className={`${wrap} pb-24`}>
       <a href={L(`/blog/${lead.slug}`)} data-cursor={T("Read")} className="reveal group grid lg:grid-cols-2 gap-8 items-center glass rounded-[2rem] overflow-hidden">
-        <Art src={ai(postImg(lead.cat))} alt={T(lead.t)} w={1152} h={864} className="h-full w-full aspect-[4/3] group-hover:scale-[1.03] transition duration-700" />
+        <Art src={lead.img || ai(postImg(lead.cat))} alt={T(lead.t)} w={1152} h={864} className="h-full w-full aspect-[4/3] group-hover:scale-[1.03] transition duration-700" />
         <div className="p-8"><p className="text-xs uppercase tracking-widest text-sky-brand">{c.text("posts", "leadLabel")} · {T(lead.cat)}</p><h2 className="mt-3 font-display text-2xl sm:text-3xl font-bold text-white">{T(lead.t)}</h2><p className="mt-3 text-slate-300">{T(lead.d)}</p><span className="mt-6 inline-block font-semibold text-sky-brand">{c.text("posts", "readLabel")} →</span></div>
       </a>
       <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">{rest.map(p => (
         <a key={p.slug} href={L(`/blog/${p.slug}`)} data-cursor={T("Read")} className="reveal group glass glow-card rounded-3xl overflow-hidden flex flex-col">
-          <Art src={ai(postImg(p.cat))} alt={T(p.t)} w={1152} h={864} sizes="(max-width:768px) 100vw, 33vw" className="aspect-[16/10] w-full group-hover:scale-105 transition duration-700" />
+          <Art src={p.img || ai(postImg(p.cat))} alt={T(p.t)} w={1152} h={864} sizes="(max-width:768px) 100vw, 33vw" className="aspect-[16/10] w-full group-hover:scale-105 transition duration-700" />
           <div className="p-6 flex-1 flex flex-col"><p className="text-xs uppercase tracking-widest text-sky-brand">{T(p.cat)}</p><h2 className="mt-3 font-display text-lg font-bold text-white">{T(p.t)}</h2><p className="mt-2 text-sm text-slate-300 flex-1">{T(p.d)}</p></div>
         </a>))}</div>
     </section>}
