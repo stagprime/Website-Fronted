@@ -1,12 +1,12 @@
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, Kicker, H2, wrap, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import { founderLd } from "@/lib/people";
 import Icon from "@/components/Icon";
 import { Counter } from "@/components/Fx";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/about", "About Stag Prime — Operators, Not Just an Agency", "Stag Prime LLC is a Wyoming-registered full-service digital agency with an in-house team in Bangladesh, built by entrepreneurs for entrepreneurs."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return await seoMeta("/about", "About Stag Prime — Operators, Not Just an Agency", "Stag Prime LLC is a Wyoming-registered full-service digital agency with an in-house team in Bangladesh, built by entrepreneurs for entrepreneurs."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);
   return (<>
     <JsonLd data={breadcrumb([["About", "/about"]])} /><JsonLd data={founderLd()} />
     <JsonLd data={{ "@context": "https://schema.org", "@type": "AboutPage", url: "https://www.stagprime.com/en/about", mainEntity: { "@id": "https://www.stagprime.com/#org" }, speakable: { "@type": "SpeakableSpecification", cssSelector: ["h1", "[data-speakable]"] } }} />

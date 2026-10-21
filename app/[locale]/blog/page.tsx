@@ -1,4 +1,4 @@
-import { useParamsLoc, L, T } from "@/lib/loc";
+import { loadLoc, L, T } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, wrap, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
@@ -7,8 +7,8 @@ import { postImg } from "@/content/posts";
 import { allPosts } from "@/lib/blog";
 import { getLoc } from "@/lib/loc";
 export const revalidate = 300;
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/blog", "Digital Marketing, SaaS & Amazon KDP Blog", "Practical guides on SEO, ASO, app development, Amazon KDP, YouTube automation, print-on-demand, AI video, privacy policies, SaaS MVPs and VPN server monitoring."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return await seoMeta("/blog", "Digital Marketing, SaaS & Amazon KDP Blog", "Practical guides on SEO, ASO, app development, Amazon KDP, YouTube automation, print-on-demand, AI video, privacy policies, SaaS MVPs and VPN server monitoring."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);
   const posts = await allPosts(getLoc()); const [lead, ...rest] = posts;
   return (<>
     <JsonLd data={breadcrumb([["Blog", "/blog"]])} />

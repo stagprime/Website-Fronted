@@ -12,7 +12,7 @@ const usd = (c: number) => new Intl.NumberFormat("en-US", { style: "currency", c
 type Act = { n: number; label: string; href: string; tone: "red" | "amber" | "sky"; why: string };
 /** Mission Control: an action queue of everything that needs a human, KPIs and recent activity — filtered by role. */
 export default async function Mission() {
-  const who = (await staff())!; const r = who.role; const now = new Date(); const d30 = new Date(Date.now() - 30 * 86400_000); const d7 = new Date(Date.now() + 7 * 86400_000);
+  const who = await staff(); if (!who) return null; const r = who.role; const now = new Date(); const d30 = new Date(Date.now() - 30 * 86400_000); const d7 = new Date(Date.now() + 7 * 86400_000);
   const s = await getSettings(); const days = s.orders.autoCompleteDays || 3;
   const z = Promise.resolve(0);
   const [human, pendingReq, revision, late, awaiting, newForms, notFound, aiDrafts, noAlt, expiring, drafts, sched] = await Promise.all([

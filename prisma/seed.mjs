@@ -6,7 +6,9 @@ const db = new PrismaClient();
 const email = (process.env.ADMIN_EMAIL || "").toLowerCase().trim(), password = process.env.ADMIN_PASSWORD || "";
 if (email && password.length >= 12) {
   const passwordHash = await bcrypt.hash(password, 12);
-  await db.user.upsert({ where: { email }, create: { email, name: "Admin", passwordHash, role: "admin", emailVerified: new Date() }, update: { role: "admin", passwordHash } });
+  const ex = await db.user.findUnique({ where: { email } });
+  const role = (await db.user.count({ where: { role: "owner" } })) === 0 || ex?.role === "owner" ? "owner" : "admin"; // first admin becomes owner; never demote an owner
+  await db.user.upsert({ where: { email }, create: { email, name: "Admin", passwordHash, role, emailVerified: new Date() }, update: { role, passwordHash, disabled: false } });
   console.log("admin ready:", email);
 } else console.log("skip admin: set ADMIN_EMAIL and ADMIN_PASSWORD (12+ chars)");
 // Digital products → files under DOWNLOADS_DIR (upload the real files there on the server).

@@ -1,15 +1,14 @@
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA } from "@/components/ui";
 import { InvestorForm } from "@/components/Forms";
 import { DonateBox } from "@/components/Buy";
 import { formT } from "@/lib/formt";
 import { getLoc } from "@/lib/loc";
 import { ai } from "@/lib/art";
-import Icon from "@/components/Icon";
 import { S } from "@/lib/site";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const CONTACT = S().contact; return await seoMeta("/investors", "Investors & Donation", "Join us in shaping the future of Stag Prime. Learn about investment and donation opportunities and how to get in touch."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const CONTACT = S().contact; const donationTiers = S().donationTiers;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return await seoMeta("/investors", "Investors & Donation", "Join us in shaping the future of Stag Prime. Learn about investment and donation opportunities and how to get in touch."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); const CONTACT = S().contact; const donationTiers = S().donationTiers;
   const dt = { title: T("Choose an amount"), custom: T("Custom amount (USD)"), cta: T("Donate with Stripe"), busy: T("Opening checkout…"), note: T("You will receive a Stripe receipt by email."), amount: T("Amount"), value: T("Amount") };
   return (<>
     <JsonLd data={breadcrumb([["Investors & Donation", "/investors"]])} />

@@ -1,11 +1,10 @@
 import { S } from "@/lib/site";
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, wrap, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
-import Icon from "@/components/Icon";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { faqs } = S();  return await seoMeta("/faq", "FAQ — Frequently Asked Questions", "Answers about Stag Prime's services, location, pricing, project process, contact options and internships."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { faqs } = S(); 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);  return await seoMeta("/faq", "FAQ — Frequently Asked Questions", "Answers about Stag Prime's services, location, pricing, project process, contact options and internships."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); const { faqs } = S(); 
   const ld = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) };
   return (<>
     <JsonLd data={breadcrumb([["FAQ", "/faq"]])} /><JsonLd data={ld} />

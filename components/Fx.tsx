@@ -21,7 +21,7 @@ export function Counter({ value }: { value: string }) {
     if (!m || reduced()) return; setN(0);
     const io = new IntersectionObserver(([e]) => { if (!e.isIntersecting) return; io.disconnect(); const t0 = performance.now();
       const step = (t: number) => { const p = Math.min(1, (t - t0) / 1400); setN(Math.round(target * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); });
-    el.current && io.observe(el.current); return () => io.disconnect();
+    if (el.current) io.observe(el.current); return () => io.disconnect();
   }, []); // eslint-disable-line
   return <span ref={el}>{m ? `${m[1]}${n}${m[3]}` : value}</span>;
 }

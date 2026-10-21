@@ -1,11 +1,11 @@
 import { S } from "@/lib/site";
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, L, T } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, wrap, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
 import Icon from "@/components/Icon";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { ventures } = S();  return await seoMeta("/ventures", "Ventures & Businesses", "Stag Prime builds its own products: Stag VPN, a print-on-demand network across six marketplaces, KDP & YouTube media, and software tools."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { ventures } = S(); 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);  return await seoMeta("/ventures", "Ventures & Businesses", "Stag Prime builds its own products: Stag VPN, a print-on-demand network across six marketplaces, KDP & YouTube media, and software tools."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); const { ventures } = S(); 
   return (<>
     <JsonLd data={breadcrumb([["Ventures", "/ventures"]])} />
     <PageHero img={ai("venture-pod-merch")} kicker="Internal Assets" title={<>{T("We practice")} <span className="grad-text">{T("what we preach.")}</span></>} sub="Unlike traditional agencies, we are active operators. We build, scale, and monetize our own digital products." crumbs={[["Ventures", "/ventures"]]} />

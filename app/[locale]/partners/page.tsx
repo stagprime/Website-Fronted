@@ -1,11 +1,10 @@
 import { S } from "@/lib/site";
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, Kicker, wrap, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
-import Icon from "@/components/Icon";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { partners } = S();  return await seoMeta("/partners", "Partners & Platforms", "Stag Prime operates on Redbubble, Amazon KDP, Teespring and Zazzle, and builds with Shopify, Google Ads, Meta Business and Payoneer."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { partners } = S(); 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);  return await seoMeta("/partners", "Partners & Platforms", "Stag Prime operates on Redbubble, Amazon KDP, Teespring and Zazzle, and builds with Shopify, Google Ads, Meta Business and Payoneer."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); const { partners } = S(); 
   const B = ({ t, items, d }: { t: string; items: string[]; d: string }) => <div><Kicker>{TT(t)}</Kicker><p className="text-slate-400 mb-6">{TT(d)}</p><div className="grid grid-cols-2 gap-4">{items.map(i => <div key={i} className="reveal glass glow-card rounded-2xl p-6 font-display text-white">{TT(i)}</div>)}</div></div>;
   return (<>
     <JsonLd data={breadcrumb([["Partners", "/partners"]])} />

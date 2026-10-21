@@ -9,11 +9,15 @@
     "start": "node .next/standalone/server.js",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "node prisma/seed.mjs",
+    "db:seed": "node prisma/seed.mjs && tsx prisma/seed-cms.ts",
     "db:sqlite": "node scripts/sqlite-schema.mjs && prisma generate --schema prisma/dev/schema.prisma && prisma db push --schema prisma/dev/schema.prisma --skip-generate",
     "i18n:keys": "node scripts/i18n-keys.mjs",
     "i18n:rekey": "node scripts/i18n-rekey.mjs",
-    "i18n:translate": "echo 'see scripts/i18n-translate.py (python venv with ctranslate2 + transformers)'"
+    "i18n:translate": "echo 'see scripts/i18n-translate.py (python venv with ctranslate2 + transformers)'",
+    "db:seed:cms": "tsx prisma/seed-cms.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "node scripts/e2e-admin.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
@@ -28,18 +32,22 @@
     "react-dom": "19.1.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "20.16.10",
     "@types/nodemailer": "^6.4.16",
     "@types/react": "19.1.12",
     "autoprefixer": "10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.4",
     "playwright-core": "1.48.0",
     "postcss": "8.4.47",
     "prisma": "^5.22.0",
     "tailwindcss": "3.4.13",
+    "tsx": "^4.19.2",
     "typescript": "5.6.3"
   },
   "prisma": {
-    "seed": "node prisma/seed.mjs"
+    "seed": "node prisma/seed.mjs && tsx prisma/seed-cms.ts"
   }
 }

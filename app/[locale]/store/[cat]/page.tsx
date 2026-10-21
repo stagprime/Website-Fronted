@@ -1,6 +1,6 @@
 import { S } from "@/lib/site";
 import { notFound } from "next/navigation";
-import { useParamsLoc, L, T } from "@/lib/loc";
+import { loadLoc, L, T } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, wrap, CTA, Btn } from "@/components/ui";
 import { ai } from "@/lib/art";
@@ -8,8 +8,8 @@ import { CatNav, CatSection } from "@/components/Store";
 const img: Record<string, string> = { marketing: "svc-digital-marketing", "design-dev": "svc-design-development", "amazon-youtube": "svc-amazon-youtube-automation", "ai-animation": "svc-ai-animation", "writing-consulting": "svc-writing-consulting", software: "svc-saas", merch: "venture-pod-merch", "ready-made-businesses": "store-digital" };
 export async function generateStaticParams() { const { getSettings } = await import("@/lib/settings"); return (await getSettings()).storeCats.map(c => ({ cat: c.slug })); }
 type P = { params: Promise<{ locale: string; cat: string }> };
-export async function generateMetadata({ params }: P) { await useParamsLoc(params); const { storeCats, services } = S();  const { cat } = await params; const c = storeCats.find(x => x.slug === cat); return c ? await seoMeta(`/store/${c.slug}`, `${c.t} — Stag Prime Store`, c.d) : {}; }
-export default async function Page({ params }: P) { await useParamsLoc(params); const { storeCats, services } = S(); 
+export async function generateMetadata({ params }: P) { await loadLoc(params); const { storeCats } = S();  const { cat } = await params; const c = storeCats.find(x => x.slug === cat); return c ? await seoMeta(`/store/${c.slug}`, `${c.t} — Stag Prime Store`, c.d) : {}; }
+export default async function Page({ params }: P) { await loadLoc(params); const { storeCats, services } = S(); 
   const { cat } = await params; const c = storeCats.find(x => x.slug === cat); if (!c) notFound(); const svc = services.find(s => s.slug === c.svc);
   return (<>
     <JsonLd data={breadcrumb([["Store", "/store"], [c.t, `/store/${c.slug}`]])} />

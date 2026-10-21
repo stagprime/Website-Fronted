@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { sendToken, useToken } from "@/lib/tokens";
+import { sendToken, consumeToken } from "@/lib/tokens";
 import { limit } from "@/lib/ratelimit";
 import { sameOrigin } from "@/lib/guard";
 import { auth } from "@/auth";
@@ -28,12 +28,12 @@ export async function POST(req: Request) {
         await db.order.updateMany({ where: { email, userId: null }, data: { userId: (await db.user.findUnique({ where: { email } }))!.id } });
         await sendToken(email, "verify", locale); return NextResponse.json({ ok: true });
       }
-      case "verify": { if (!(await useToken(email, String(b.token || ""), "verify"))) return E("This link is invalid or has expired."); await db.user.update({ where: { email }, data: { emailVerified: new Date() } }); return NextResponse.json({ ok: true }); }
+      case "verify": { if (!(await consumeToken(email, String(b.token || ""), "verify"))) return E("This link is invalid or has expired."); await db.user.update({ where: { email }, data: { emailVerified: new Date() } }); return NextResponse.json({ ok: true }); }
       case "resend": { const u = await db.user.findUnique({ where: { email } }); if (u && !u.emailVerified) await sendToken(email, "verify", locale); return NextResponse.json({ ok: true }); }
       case "forgot": { const u = await db.user.findUnique({ where: { email } }); if (u) await sendToken(email, "reset", locale); return NextResponse.json({ ok: true }); }
       case "reset": {
         if (String(b.password || "").length < 8) return E("Password must be at least 8 characters.");
-        if (!(await useToken(email, String(b.token || ""), "reset"))) return E("This link is invalid or has expired.");
+        if (!(await consumeToken(email, String(b.token || ""), "reset"))) return E("This link is invalid or has expired.");
         await db.user.update({ where: { email }, data: { passwordHash: await bcrypt.hash(String(b.password), 12), emailVerified: new Date() } }); return NextResponse.json({ ok: true });
       }
       case "profile": {

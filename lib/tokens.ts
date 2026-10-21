@@ -9,7 +9,7 @@ export async function sendToken(email: string, purpose: "verify" | "reset", loca
   const url = `${SITE()}/${locale}/${purpose === "verify" ? "account/verify" : "account/reset"}?token=${token}&email=${encodeURIComponent(email)}`;
   return sendEmail(purpose === "verify" ? "auth.verify" : "auth.reset", email, { url }, locale);
 }
-export async function useToken(email: string, token: string, purpose: "verify" | "reset") {
+export async function consumeToken(email: string, token: string, purpose: "verify" | "reset") {
   const hash = crypto.createHash("sha256").update(token).digest("hex");
   const t = await db.verificationToken.findFirst({ where: { identifier: email, token: hash, purpose } });
   if (!t || t.expires < new Date()) return false;

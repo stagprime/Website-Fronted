@@ -1,12 +1,11 @@
 import { LegalBody } from "@/components/LegalBody";
 import { privacy } from "@/content/legal";
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, T } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, wrap } from "@/components/ui";
 import { ai } from "@/lib/art";
-import Icon from "@/components/Icon";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/privacy", "Privacy Policy", "Privacy Policy for Stag Prime LLC and stagprime.com."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return await seoMeta("/privacy", "Privacy Policy", "Privacy Policy for Stag Prime LLC and stagprime.com."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);
   return (<>
     <JsonLd data={breadcrumb([["Privacy Policy", "/privacy"]])} />
     <PageHero img={ai("venture-stag-vpn")} kicker="Legal" title="Privacy Policy" sub="Last updated: 2026. Template — pending legal review before launch." crumbs={[["Privacy Policy", "/privacy"]]} />

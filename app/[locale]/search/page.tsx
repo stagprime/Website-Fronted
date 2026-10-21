@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { useParamsLoc, L, T, getLoc } from "@/lib/loc";
+import { loadLoc, L, T, getLoc } from "@/lib/loc";
 import { PageHero, wrap } from "@/components/ui";
 import { allPosts } from "@/lib/blog";
 import { S } from "@/lib/site";
 // Site search — target of the WebSite SearchAction (sitelinks search box). Results pages are noindex,follow.
 export const metadata: Metadata = { title: "Search", robots: { index: false, follow: true } };
 export default async function Page({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string }> }) {
-  await useParamsLoc(params); const q = ((await searchParams).q || "").trim().slice(0, 100); const n = q.toLowerCase();
+  await loadLoc(params); const q = ((await searchParams).q || "").trim().slice(0, 100); const n = q.toLowerCase();
   const hit = (...s: (string | undefined)[]) => !!n && s.some(x => x && (x.toLowerCase().includes(n) || T(x).toLowerCase().includes(n)));
   const { services, products } = S();
   const posts = n ? (await allPosts(getLoc())).filter(p => hit(p.t, p.d, p.cat)) : [];

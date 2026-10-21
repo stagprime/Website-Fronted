@@ -11,7 +11,7 @@ let n = 0;
 async function work() {
   while (queue.length) {
     const k = queue.shift(); let r;
-    try { r = await fetch(base + k, { redirect: "manual", headers: { "User-Agent": "Mozilla/5.0 SPCrawler", Cookie: "NEXT_LOCALE=en" } }); } catch (e) { seen.set(k, "ERR"); continue; }
+    try { r = await fetch(base + k, { redirect: "manual", headers: { "User-Agent": "Mozilla/5.0 SPCrawler", Cookie: "NEXT_LOCALE=en" } }); } catch { seen.set(k, "ERR"); continue; }
     seen.set(k, r.status); n++;
     if (r.status >= 300 && r.status < 400) { const loc = r.headers.get("location"); if (loc) add(loc, k); continue; }
     if (!(r.headers.get("content-type") || "").includes("text/html")) continue;

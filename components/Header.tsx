@@ -60,12 +60,12 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
           <div className="hidden lg:block mega-in mt-2 rounded-3xl border border-sky-brand/20 bg-[rgba(6,23,51,0.97)] backdrop-blur-2xl shadow-2xl shadow-black/60 overflow-hidden">
             <div className="p-6 grid grid-cols-[1fr_17rem] gap-6">
               <div className={`grid gap-6 ${g.cols.length > 1 ? "grid-cols-[2fr_1fr]" : ""}`}>
-                {g.cols.map(c => (
-                  <div key={c.title}>
+                {g.cols.map((c, ci) => (
+                  <div key={`${ci}-${c.title}`}>
                     <p className="text-[11px] uppercase tracking-[.25em] text-slate-500 mb-3 px-3">{c.title}</p>
                     <ul className={`grid gap-1 ${c.items.length > 4 && !c.items[0].ext ? "grid-cols-2" : ""}`}>
-                      {c.items.map(i => (
-                        <li key={i.t}><a href={L(i.href)} target={i.ext ? "_blank" : undefined} rel={i.ext ? "noopener" : undefined} style={{ ["--c" as string]: i.color || "#48BDED" }}
+                      {c.items.map((i, ii) => (
+                        <li key={`${ii}-${i.href}`}><a href={L(i.href)} target={i.ext ? "_blank" : undefined} rel={i.ext ? "noopener" : undefined} style={{ ["--c" as string]: i.color || "#48BDED" }}
                           className="group flex gap-3 rounded-2xl p-3 border border-transparent mi transition">
                           {i.icon ? <span className="grid place-items-center shrink-0 w-10 h-10 rounded-xl border border-white/10 group-hover:scale-110 transition" style={{ background: `${i.color}22` }}><Icon name={i.icon} color={i.color} /></span> : <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-sky-brand" />}
                           <span className="min-w-0">
@@ -114,8 +114,8 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
                 {n.cols ? (<>
                   <button className="w-full flex justify-between items-center py-4 font-display text-lg text-white" aria-expanded={acc === n.label} onClick={() => setAcc(acc === n.label ? null : n.label)}>
                     {n.label}<span className={`text-sky-brand transition ${acc === n.label ? "rotate-45" : ""}`}>+</span></button>
-                  {acc === n.label && <ul className="pb-4 grid gap-1">{n.cols.flatMap(c => c.items).map(i => (
-                    <li key={i.t}><a href={L(i.href)} target={i.ext ? "_blank" : undefined} rel="noopener" className="flex items-center gap-3 rounded-xl p-2.5 active:bg-white/5">
+                  {acc === n.label && <ul className="pb-4 grid gap-1">{n.cols.flatMap(c => c.items).map((i, ii) => (
+                    <li key={`${ii}-${i.href}`}><a href={L(i.href)} target={i.ext ? "_blank" : undefined} rel="noopener" className="flex items-center gap-3 rounded-xl p-2.5 active:bg-white/5">
                       {i.icon ? <span className="grid place-items-center w-9 h-9 rounded-lg" style={{ background: `${i.color}22` }}><Icon name={i.icon} color={i.color} className="w-4 h-4" /></span> : <span className="w-9 grid place-items-center text-sky-brand">↗</span>}
                       <span><span className="block text-sm font-semibold text-slate-100">{i.t}</span>{i.d && <span className="block text-xs text-slate-500">{i.d}</span>}</span></a></li>))}</ul>}
                 </>) : <a href={L(n.href)} className="block py-4 font-display text-lg text-white">{n.label}</a>}

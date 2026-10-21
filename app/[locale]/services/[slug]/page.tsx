@@ -1,18 +1,17 @@
 import { S, gigOf } from "@/lib/site";
-import { useParamsLoc, L, T, TT, getLoc } from "@/lib/loc";
+import { loadLoc, L, T, TT, getLoc } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
 import { GigPackages } from "@/components/Gig";
 import { ServiceProducts } from "@/components/Store";
-import Icon from "@/components/Icon";
 import RelatedGuides from "@/components/RelatedGuides";
 import { notFound } from "next/navigation";
 import { SITE } from "@/lib/i18n";
 export async function generateStaticParams() { const { getSettings } = await import("@/lib/settings"); return (await getSettings()).services.map(s => ({ slug: s.slug })); }
 type P = { params: Promise<{ slug: string; locale: string }> };
-export async function generateMetadata({ params }: P) { await useParamsLoc(params); const { services, pricing, extended, faqs, process } = S();  const { slug } = await params; const s = services.find(x => x.slug === slug); return s ? await seoMeta(`/services/${s.slug}`, `${T(s.title)} Services`, s.intro) : {}; }
-export default async function Page({ params }: P) { await useParamsLoc(params); const { services, pricing, extended, faqs, process } = S(); 
+export async function generateMetadata({ params }: P) { await loadLoc(params); const { services } = S();  const { slug } = await params; const s = services.find(x => x.slug === slug); return s ? await seoMeta(`/services/${s.slug}`, `${T(s.title)} Services`, s.intro) : {}; }
+export default async function Page({ params }: P) { await loadLoc(params); const { services, pricing, extended, process } = S(); 
   const { slug } = await params; const s = services.find(x => x.slug === slug); if (!s) notFound();
   const price = pricing.find(p => p.slug === s.slug); const others = services.filter(x => x.slug !== s.slug);
   const ld = { "@context": "https://schema.org", "@type": "Service", name: s.title, serviceType: s.title, description: s.intro, provider: { "@id": `${SITE}/#org` }, areaServed: "Worldwide", url: `${SITE}/${getLoc()}/services/${s.slug}`,
@@ -24,7 +23,7 @@ export default async function Page({ params }: P) { await useParamsLoc(params); 
     </PageHero>
     <section className={`${wrap} pb-20`}>
       <div className="grid md:grid-cols-3 gap-5">{s.subs.map((x, i) => (
-        <article key={T(x.t)} className="reveal glass glow-card rounded-3xl p-7"><span className="font-display text-sm" style={{ color: s.color }}>0{i + 1}</span><h2 className="mt-4 font-display text-lg font-bold text-white">{T(x.t)}</h2><p className="mt-3 text-slate-400">{T(x.d)}</p></article>))}</div>
+        <article key={x.t} className="reveal glass glow-card rounded-3xl p-7"><span className="font-display text-sm" style={{ color: s.color }}>0{i + 1}</span><h2 className="mt-4 font-display text-lg font-bold text-white">{T(x.t)}</h2><p className="mt-3 text-slate-400">{T(x.d)}</p></article>))}</div>
     </section>
     <section className="bg-slate-50 text-navy-900"><div className={`${wrap} py-20 grid lg:grid-cols-2 gap-12`}>
       <div><Kicker light>{T("Full capability list")}</Kicker><H2 light>Everything included in {s.title.toLowerCase()}.</H2>

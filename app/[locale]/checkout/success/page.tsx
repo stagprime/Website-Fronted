@@ -1,10 +1,10 @@
-import { useParamsLoc, T } from "@/lib/loc";
+import { loadLoc, T } from "@/lib/loc";
 import { seoMeta } from "@/lib/seo";
 import { PageHero, wrap, Btn } from "@/components/ui";
 import { Purchase } from "@/components/Track";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return { ...await seoMeta("/checkout/success", "Payment successful", "Thank you for your order with Stag Prime."), robots: { index: false, follow: false } }; }
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return { ...await seoMeta("/checkout/success", "Payment successful", "Thank you for your order with Stag Prime."), robots: { index: false, follow: false } }; }
 type Sp = { session_id?: string };
-export default async function Page({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Sp> }) { await useParamsLoc(params);
+export default async function Page({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Sp> }) { await loadLoc(params);
   const { session_id } = await searchParams; let value: number | undefined, name: string | undefined, kind = "";
   if (session_id && process.env.STRIPE_SECRET_KEY && /^cs_[\w]+$/.test(session_id)) {
     try { const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${session_id}`, { headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}` }, cache: "no-store" }); const j = await r.json(); if (j.payment_status === "paid" || j.status === "complete") { value = (j.amount_total || 0) / 100; name = j.metadata?.item; kind = String(j.metadata?.item || "").split(":")[0]; } } catch { /* show generic thank-you */ }

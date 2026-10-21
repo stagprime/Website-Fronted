@@ -1,4 +1,5 @@
-import { useParamsLoc, L, T, TT, getLoc } from "@/lib/loc";
+import Icon from "@/components/Icon";
+import { loadLoc, L, T, TT, getLoc } from "@/lib/loc";
 import { seoMeta } from "@/lib/seo";
 import Image from "next/image";
 import t0 from "@/messages/en.json";
@@ -6,10 +7,8 @@ import { S } from "@/lib/site";
 import Blocks from "@/components/Blocks";
 import { pageDoc, txt, defaultHome } from "@/lib/cms/page";
 import { CursorGlow, Counter } from "@/components/Fx";
-import Motion from "@/components/Motion";
 import Art from "@/components/Art";
-import { Kicker, wrap, Btn, JsonLd, R, Marquee } from "@/components/ui";
-import Icon from "@/components/Icon";
+import { Kicker, wrap, Btn, JsonLd, R } from "@/components/ui";
 import { breadcrumb } from "@/lib/seo";
 import { ai, merch, vpn, storeOf } from "@/lib/art";
 
@@ -27,8 +26,8 @@ const SecHead = ({ k, title, light }: { k: string; title: React.ReactNode; light
   <div data-up><Kicker light={light}>{TT(k)}</Kicker><h2 className={`font-display text-[2.1rem] sm:text-6xl font-bold leading-[1.02] tracking-tight ${light ? "text-navy-900" : "text-white"}`}><R>{title}</R></h2></div>
 );
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return { ...await seoMeta("/", t0.meta.title, t0.meta.description), title: { absolute: T(t0.meta.title) } }; }
-export default async function Home({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return { ...await seoMeta("/", t0.meta.title, t0.meta.description), title: { absolute: T(t0.meta.title) } }; }
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);
   const { services, ventures, products, stores, process, profiles, partners, contact: CONTACT } = S();
   // CMS: Admin → Pages → Home controls section order/visibility, copy per locale and extra blocks.
   const doc = pageDoc("home") ?? defaultHome(); const sec = (id: string) => doc.find(x => x.type === "legacy" && x.id === id);

@@ -1,13 +1,12 @@
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
-import Icon from "@/components/Icon";
+import { PageHero, JsonLd, wrap } from "@/components/ui";
 import { formT } from "@/lib/formt";
 import { ai } from "@/lib/art";
 import { ContactForm } from "@/components/Forms";
 import { getContact, getServices } from "@/lib/content";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/contact", "Contact & Book a Call", "Talk to Stag Prime: WhatsApp or call +1 307-396-4184, Telegram @stagprime, email brand@stagprime.com, or send a project brief."); }
-export default async function Page({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ topic?: string }> }) { await useParamsLoc(params); const [CONTACT, services] = await Promise.all([getContact(), getServices()]); const topic = (await searchParams).topic?.slice(0, 120);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return await seoMeta("/contact", "Contact & Book a Call", "Talk to Stag Prime: WhatsApp or call +1 307-396-4184, Telegram @stagprime, email brand@stagprime.com, or send a project brief."); }
+export default async function Page({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ topic?: string }> }) { await loadLoc(params); const [CONTACT, services] = await Promise.all([getContact(), getServices()]); const topic = (await searchParams).topic?.slice(0, 120);
   const ch = [["WhatsApp", CONTACT.whatsapp, CONTACT.phone, "#20BF55"], ["Telegram", CONTACT.telegram, CONTACT.telegramHandle, "#2AABEE"], ["Call", CONTACT.tel, CONTACT.phone, "#1071B2"], ["Email", `mailto:${CONTACT.email}`, CONTACT.email, "#48BDED"], ["Support", `mailto:${CONTACT.support}`, CONTACT.support, "#3FB7D3"]];
   return (<>
     <JsonLd data={breadcrumb([["Contact", "/contact"]])} />

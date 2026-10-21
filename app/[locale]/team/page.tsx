@@ -1,12 +1,11 @@
 import { S } from "@/lib/site";
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, L, T } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, wrap, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
-import Icon from "@/components/Icon";
 import { founderLd } from "@/lib/people";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { team } = S();  return await seoMeta("/team", "Our Team — The Stag Squad", "Meet the Stag Prime team: leadership, software & SaaS engineers, creative designers, marketers and support."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { team } = S(); 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);  return await seoMeta("/team", "Our Team — The Stag Squad", "Meet the Stag Prime team: leadership, software & SaaS engineers, creative designers, marketers and support."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); const { team } = S(); 
   const groups = [...new Set(team.map(m => m.group))];
   return (<>
     <JsonLd data={breadcrumb([["Team", "/team"]])} /><JsonLd data={founderLd()} />

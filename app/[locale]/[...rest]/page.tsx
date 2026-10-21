@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { db, dbReady } from "@/lib/db";
-import { useParamsLoc } from "@/lib/loc";
+import { loadLoc } from "@/lib/loc";
 import { pageDoc, pageTitle, txt } from "@/lib/cms/page";
 import { seoMeta } from "@/lib/seo";
 import Blocks from "@/components/Blocks";
@@ -11,12 +11,12 @@ export const dynamic = "force-dynamic";
  */
 type P = { params: Promise<{ locale: string; rest: string[] }> };
 export async function generateMetadata({ params }: P) {
-  await useParamsLoc(params); const { rest } = await params; const key = "/" + rest.join("/");
+  await loadLoc(params); const { rest } = await params; const key = "/" + rest.join("/");
   const doc = pageDoc(key); if (!doc) return { robots: { index: false } };
   const hero = doc.find(s => s.type === "hero"); return seoMeta(key, pageTitle(key) || key, hero ? txt(hero, "sub", "") : "");
 }
 export default async function Rest({ params }: P) {
-  await useParamsLoc(params); const { locale, rest } = await params; const key = "/" + rest.join("/");
+  await loadLoc(params); const { locale, rest } = await params; const key = "/" + rest.join("/");
   const doc = pageDoc(key); if (doc) return <Blocks sections={doc} />;
   if (dbReady()) { const path = `/${locale}${key}`.slice(0, 300); await db.notFoundLog.upsert({ where: { path }, create: { path }, update: { hits: { increment: 1 } } }).catch(() => null); }
   notFound();

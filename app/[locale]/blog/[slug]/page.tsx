@@ -1,5 +1,5 @@
 import { S } from "@/lib/site";
-import { useParamsLoc, L, T, getLoc } from "@/lib/loc";
+import { loadLoc, L, T, getLoc } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, wrap, Btn, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
@@ -14,10 +14,10 @@ import { ViewContent } from "@/components/Track";
 export const revalidate = 300;
 export function generateStaticParams() { return posts.map(p => ({ slug: p.slug })); }
 type P = { params: Promise<{ slug: string; locale: string }> };
-export async function generateMetadata({ params }: P) { await useParamsLoc(params); const { services } = S();  const { slug } = await params; const p = await getPost(slug, getLoc()); if (!p) return {}; const m = await seoMeta(`/blog/${p.slug}`, p.t, p.d, `/img/ai/${postImg(p.cat)}.webp`); const l = getLoc(), langs = postLocales(p.slug);
+export async function generateMetadata({ params }: P) { await loadLoc(params);  const { slug } = await params; const p = await getPost(slug, getLoc()); if (!p) return {}; const m = await seoMeta(`/blog/${p.slug}`, p.t, p.d, `/img/ai/${postImg(p.cat)}.webp`); const l = getLoc(), langs = postLocales(p.slug);
   // Untranslated locale → canonical points to the English original; hreflang lists only real translations.
   return { ...m, alternates: { canonical: p.translated ? `/${l}/blog/${p.slug}` : `/en/blog/${p.slug}`, languages: { ...Object.fromEntries(langs.map(x => [x, `/${x}/blog/${p.slug}`])), "x-default": `/en/blog/${p.slug}` } }, openGraph: { ...m.openGraph, type: "article", publishedTime: p.date } }; }
-export default async function Page({ params }: P) { await useParamsLoc(params); const { services } = S(); 
+export default async function Page({ params }: P) { await loadLoc(params); const { services } = S(); 
   const { slug } = await params; const p = await getPost(slug, getLoc()); if (!p) notFound();
   const l = getLoc(); const svc = services.find(s => s.slug === p.svc); const related = posts.filter(x => x.slug !== p.slug && x.svc === p.svc).slice(0, 2);
   const ld = { "@context": "https://schema.org", "@type": "BlogPosting", headline: T(p.t), description: T(p.d), image: `${SITE}/img/ai/${postImg(p.cat)}.webp`, datePublished: p.date, dateModified: p.date, wordCount: words(p.body), inLanguage: p.translated ? l : "en", keywords: p.kw,

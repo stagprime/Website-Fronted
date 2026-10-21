@@ -1,16 +1,15 @@
 import { S } from "@/lib/site";
-import { useParamsLoc, L, T, TT, getLoc } from "@/lib/loc";
+import { loadLoc, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, Kicker, wrap, Btn, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
-import Icon from "@/components/Icon";
 import { notFound } from "next/navigation";
 import { MerchGrid, VpnShots } from "@/components/Galleries";
 export async function generateStaticParams() { const { getSettings } = await import("@/lib/settings"); return (await getSettings()).ventures.map(v => ({ slug: v.slug })); }
 type P = { params: Promise<{ slug: string; locale: string }> };
-export async function generateMetadata({ params }: P) { await useParamsLoc(params); const { ventures } = S();  const { slug } = await params; const v = ventures.find(x => x.slug === slug); return v ? await seoMeta(`/ventures/${v.slug}`, v.title, v.body) : {}; }
+export async function generateMetadata({ params }: P) { await loadLoc(params); const { ventures } = S();  const { slug } = await params; const v = ventures.find(x => x.slug === slug); return v ? await seoMeta(`/ventures/${v.slug}`, v.title, v.body) : {}; }
 const ventImg: Record<string, string> = { "stag-vpn": "venture-stag-vpn", "print-on-demand": "venture-pod-merch", media: "svc-amazon-youtube-automation", software: "svc-saas" };
-export default async function Page({ params }: P) { await useParamsLoc(params); const { ventures } = S(); 
+export default async function Page({ params }: P) { await loadLoc(params); const { ventures } = S(); 
   const { slug } = await params; const v = ventures.find(x => x.slug === slug); if (!v) notFound();
   return (<>
     <JsonLd data={breadcrumb([["Ventures", "/ventures"], [v.title, `/ventures/${v.slug}`]])} />

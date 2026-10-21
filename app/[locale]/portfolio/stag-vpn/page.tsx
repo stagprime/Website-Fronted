@@ -1,20 +1,19 @@
-import { useParamsLoc, L, T, TT } from "@/lib/loc";
+import { loadLoc, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
-import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
+import { PageHero, JsonLd, Kicker, wrap, CTA } from "@/components/ui";
 import { ai } from "@/lib/art";
-import Icon from "@/components/Icon";
 import { SITE } from "@/lib/i18n";
 import Image from "next/image";
 import { VpnShots } from "@/components/Galleries";
 import { vpn } from "@/lib/art";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/portfolio/stag-vpn", "Stag VPN Case Study — Built In-House, Sold to NexGlobo", "How Stag Prime designed, built and scaled the Stag VPN Android app — rated about 4.8★ on Google Play — and transferred it to NexGlobo."); }
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params); return await seoMeta("/portfolio/stag-vpn", "Stag VPN Case Study — Built In-House, Sold to NexGlobo", "How Stag Prime designed, built and scaled the Stag VPN Android app — rated about 4.8★ on Google Play — and transferred it to NexGlobo."); }
 const blocks = [
   ["The challenge", "Build a fast, secure, privacy-first VPN app that could compete in a crowded market, monetize sustainably and be ready to hand over to a new owner."],
   ["What we built", "A complete Android VPN product: UI/UX, app engineering, support for industry-standard tunneling protocols, server management for a 50+ location network, and integrated monetization and notifications."],
   ["Growth", "App Store Optimization and subscription marketing grew an engaged user base, earning a Google Play rating of about 4.8★."],
   ["The outcome", "Stag VPN was successfully sold to NexGlobo, with the production-ready client application delivered and a deployment roadmap for the new owner's infrastructure team."],
 ];
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);
   const ld = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "Stag VPN", operatingSystem: "Android", applicationCategory: "SecurityApplication", url: "https://play.google.com/store/apps/details?id=com.doracone.stagvpn", creator: { "@id": `${SITE}/#org` } };
   return (<>
     <JsonLd data={breadcrumb([["Portfolio", "/portfolio"], ["Stag VPN", "/portfolio/stag-vpn"]])} /><JsonLd data={ld} />

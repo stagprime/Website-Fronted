@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { can } from "@/lib/rbac";
-import { useParamsLoc, L, T } from "@/lib/loc";
+import { loadLoc, L, T } from "@/lib/loc";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { wrap } from "@/components/ui";
@@ -9,7 +9,7 @@ import { acctT, STEPS, stepLabel } from "@/lib/acct";
 import { gigOf } from "@/lib/site";
 export const dynamic = "force-dynamic";
 export async function generateMetadata() { return { title: "Order", robots: { index: false, follow: false } }; }
-export default async function Page({ params }: { params: Promise<{ locale: string; id: string }> }) { await useParamsLoc(params);
+export default async function Page({ params }: { params: Promise<{ locale: string; id: string }> }) { await loadLoc(params);
   const { id } = await params; const s = await auth(); if (!s?.user) redirect(L("/login"));
   const o = await db.order.findUnique({ where: { id }, include: { events: { orderBy: { createdAt: "asc" } }, files: true, messages: { orderBy: { createdAt: "asc" } } } });
   if (!o || (o.userId !== s.user.id && o.email !== s.user.email && !can(s.user.role, "orders.view"))) notFound();

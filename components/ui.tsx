@@ -36,8 +36,9 @@ export function PageHero({ kicker, title, sub, crumbs, color = "#48BDED", img, c
     <section className="relative overflow-hidden pt-36 pb-20 sm:pt-44 sm:pb-24">
       <div className="absolute inset-0 grid-bg" />
       <div className="absolute -top-40 left-1/3 w-[36rem] h-[36rem] rounded-full blur-[120px] opacity-25" style={{ background: color }} />
-      {img && <div className="absolute right-0 top-0 h-full w-full lg:w-[52%] opacity-35 lg:opacity-80" data-parallax="8" aria-hidden>
-        <Art src={img} alt="" w={1280} h={720} priority sizes="(max-width:1024px) 100vw, 52vw" className="h-full w-full" />
+      {img && <div className="absolute right-0 top-0 h-full hidden lg:block lg:w-[52%] lg:opacity-80" data-parallax="8" aria-hidden>
+        {/* Decorative backdrop: desktop only. On phones it sat at 35% opacity behind the text yet was the LCP element (~1 s of mobile LCP); sizes keeps the mobile preload tiny. */}
+        <Art src={img} alt="" w={1280} h={720} priority sizes="(max-width:1023px) 16px, 52vw" className="h-full w-full" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/50 to-transparent rtl:bg-gradient-to-l" /><div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-transparent to-navy-950/60" /></div>}
       <div className={wrap}>
         <nav aria-label="Breadcrumb" className="mb-8 text-xs text-slate-400"><ol className="flex flex-wrap gap-2"><li><a href={L("/")} className="hover:text-white">{T("Home")}</a></li>

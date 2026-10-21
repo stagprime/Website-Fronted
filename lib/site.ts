@@ -1,5 +1,5 @@
 /**
- * Request-scoped site snapshot. `await primeSite(locale)` (called by useParamsLoc in every page/layout/metadata)
+ * Request-scoped site snapshot. `await primeSite(locale)` (called by loadLoc in every page/layout/metadata)
  * loads the effective settings (DB `Setting` rows over code defaults), UiString overrides and page docs once per
  * request through the tagged cache. After that, server components read synchronously with `S()`.
  * If the DB is missing/unreachable everything falls back to the code defaults (content/*.ts, lib/*.ts).
@@ -40,7 +40,7 @@ export async function primeSite(locale: string) {
   await Promise.all(jobs);
   return st.s!;
 }
-/** Effective site content for this request (call after primeSite / useParamsLoc). */
+/** Effective site content for this request (call after primeSite / loadLoc). */
 export function S(): Settings { return snap().s ?? DEFAULTS; }
 export function rawPage(key: string) { return (snap().pages?.[key] as { title: string; sections: string } | undefined) ?? undefined; }
 export function setCurrentPage(key: string) { snap().current = key; }

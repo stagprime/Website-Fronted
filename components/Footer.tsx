@@ -13,7 +13,7 @@ export default function Footer() {
           <img src={brand.logoWide} alt={`${brand.name} Digital Agency`} className="h-20 w-auto" />
           <p className="mt-4 text-slate-400 text-sm">{T(brand.tagline)}</p>
           <address className="not-italic mt-6 text-sm text-slate-400 space-y-1">
-            {CONTACT.offices.map((o, i) => <div key={o.label}><p className={`text-white font-semibold ${i ? "pt-3" : ""}`}>{T(o.label)}</p><p>{T(o.line)}</p></div>)}
+            {CONTACT.offices.map((o, i) => <div key={`${i}-${o.label}`}><p className={`text-white font-semibold ${i ? "pt-3" : ""}`}>{T(o.label)}</p><p>{T(o.line)}</p></div>)}
             <p className="pt-3"><a href={CONTACT.tel} className="hover:text-white" dir="ltr">{CONTACT.phone}</a> · <a href={`mailto:${CONTACT.email}`} className="hover:text-white">{CONTACT.email}</a></p>
             <p><a href={`mailto:${CONTACT.support}`} className="hover:text-white">{CONTACT.support}</a></p>
           </address>

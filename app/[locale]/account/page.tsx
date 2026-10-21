@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { useParamsLoc, L, T, getLoc } from "@/lib/loc";
+import { loadLoc, L, T, getLoc } from "@/lib/loc";
 import { auth, signOut } from "@/auth";
 import { db } from "@/lib/db";
 import { wrap } from "@/components/ui";
@@ -8,7 +8,7 @@ import { acctT, stepLabel } from "@/lib/acct";
 import { localeNames } from "@/lib/i18n";
 export const dynamic = "force-dynamic";
 export async function generateMetadata() { return { title: "My account", robots: { index: false, follow: false } }; }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await loadLoc(params);
   const s = await auth(); if (!s?.user) redirect(L("/login"));
   const [u, orders] = await Promise.all([db.user.findUnique({ where: { id: s.user.id } }), db.order.findMany({ where: { OR: [{ userId: s.user.id }, { email: s.user.email || "-" }] }, orderBy: { createdAt: "desc" }, include: { files: { where: { kind: "download" } } } })]);
   const svc = orders.filter(o => o.kind === "service"), other = orders.filter(o => o.kind !== "service"); const dls = orders.flatMap(o => o.files);
