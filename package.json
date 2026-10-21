@@ -1,0 +1,45 @@
+{
+  "name": "stagprime-site",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "prebuild": "node scripts/formkeys.mjs",
+    "build": "next build",
+    "postbuild": "node scripts/standalone.mjs",
+    "start": "node .next/standalone/server.js",
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "node prisma/seed.mjs",
+    "db:sqlite": "node scripts/sqlite-schema.mjs && prisma generate --schema prisma/dev/schema.prisma && prisma db push --schema prisma/dev/schema.prisma --skip-generate",
+    "i18n:keys": "node scripts/i18n-keys.mjs",
+    "i18n:rekey": "node scripts/i18n-rekey.mjs",
+    "i18n:translate": "echo 'see scripts/i18n-translate.py (python venv with ctranslate2 + transformers)'"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.7.4",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.13",
+    "next": "15.5.4",
+    "next-auth": "^5.0.0-beta.25",
+    "nodemailer": "^6.9.15",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "20.16.10",
+    "@types/nodemailer": "^6.4.16",
+    "@types/react": "19.1.12",
+    "autoprefixer": "10.4.20",
+    "playwright-core": "1.48.0",
+    "postcss": "8.4.47",
+    "prisma": "^5.22.0",
+    "tailwindcss": "3.4.13",
+    "typescript": "5.6.3"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
+  }
+}

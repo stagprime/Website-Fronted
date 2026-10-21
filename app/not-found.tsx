@@ -1,0 +1,1 @@
+export default function NotFound() { return <html lang="en"><body style={{ background: "#0B1631", color: "#fff", fontFamily: "system-ui", display: "grid", placeItems: "center", minHeight: "100vh", margin: 0 }}><div style={{ textAlign: "center" }}><h1>404 — Page not found</h1><p><a href="/en" style={{ color: "#48BDED" }}>Go to Stag Prime home →</a></p></div></body></html>; }

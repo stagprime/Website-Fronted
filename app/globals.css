@@ -1,0 +1,45 @@
+@tailwind base;@tailwind components;@tailwind utilities;
+html{overflow-x:hidden;scroll-behavior:smooth;background:#061733}
+body{@apply overflow-x-hidden bg-navy-950 text-slate-200 font-body antialiased}
+.grad-text{background:linear-gradient(90deg,#48BDED,#3FB7D3 40%,#1071B2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.glass{background:rgba(14,35,70,.55);backdrop-filter:blur(14px);border:1px solid rgba(72,189,237,.15)}
+.grid-bg{background-image:linear-gradient(rgba(72,189,237,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(72,189,237,.07) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+.glow-card{position:relative;transition:transform .4s,border-color .4s}
+.glow-card:hover{transform:translateY(-6px);border-color:rgba(72,189,237,.5)}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.marquee{animation:marquee 28s linear infinite}
+@keyframes float{50%{transform:translateY(-14px)}}
+.float{animation:float 6s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-slow{animation:spin 30s linear infinite}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(32,191,85,.6)}100%{box-shadow:0 0 0 16px rgba(32,191,85,0)}}
+.pulse-ring{animation:pulse-ring 2s infinite}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.reveal{opacity:1;transform:none}}
+.cursor-glow{background:radial-gradient(600px circle at var(--x,50%) var(--y,30%),rgba(72,189,237,.14),transparent 40%)}
+.parallax{transform:translate3d(calc(var(--px,0)*-14px),calc(var(--py,0)*-14px),0);transition:transform .2s ease-out}
+.stag-line path{stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 4s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes hue{50%{filter:hue-rotate(25deg)}}
+.hue{animation:hue 8s ease-in-out infinite}
+@keyframes megaIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.mega-in{animation:megaIn .18s ease-out}
+.prose-sp h2{@apply font-display text-xl font-bold text-white mt-10 mb-3}
+.prose-sp p,.prose-sp li{@apply text-slate-300 leading-relaxed}
+.prose-sp ul{@apply list-disc pl-6 space-y-1}
+@media (prefers-reduced-motion:reduce){.stag-line path{stroke-dashoffset:0}.parallax{transform:none}}
+.menu-open .contact-dock{display:none}
+.mi:hover,.mi:focus-visible{border-color:color-mix(in srgb,var(--c) 45%,transparent);background:color-mix(in srgb,var(--c) 11%,transparent)}
+/* v4 motion */
+.sw{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.06em}.swi{display:inline-block}
+.sp-cursor{position:fixed;left:0;top:0;z-index:70;pointer-events:none;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:999px;background:#48BDED;mix-blend-mode:normal;transition:width .25s,height .25s,margin .25s,background .25s}
+.sp-cursor span{position:absolute;inset:0;display:grid;place-items:center;font:600 12px/1 var(--font-display);color:#061733;opacity:0;transition:opacity .2s}
+.sp-cursor.on{width:84px;height:84px;margin:-42px 0 0 -42px;background:rgba(72,189,237,.92)}.sp-cursor.on span{opacity:1}
+@media (pointer:fine){html.js [data-cursor]{cursor:none}}
+.badge-ring{animation:spin 18s linear infinite}
+@keyframes marquee-x{to{transform:translateX(-50%)}}
+.mq{animation:marquee-x 22s linear infinite}.mq-rev{animation-direction:reverse}
+.tilt{transform:rotate(var(--r,-3deg));transition:transform .5s cubic-bezier(.2,.8,.2,1)}.tilt:hover{transform:rotate(0) translateY(-6px)}
+.rail{scroll-snap-type:x mandatory;scrollbar-width:none}.rail::-webkit-scrollbar{display:none}.rail>*{scroll-snap-align:start}
+@media (prefers-reduced-motion:reduce){.badge-ring,.mq{animation:none!important}.tilt{transform:none}}

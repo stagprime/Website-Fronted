@@ -1,0 +1,18 @@
+import { cache } from "react";
+import { locales, defaultLocale } from "./i18n";
+import { dicts, idFor, source } from "./tr";
+// Per-request locale store (React cache is request-scoped in RSC). Set by layout/page/generateMetadata.
+const store = cache(() => ({ l: defaultLocale as string }));
+export function setLoc(l?: string) { if (l && (locales as readonly string[]).includes(l)) store().l = l; return store().l; }
+export const getLoc = () => store().l;
+export async function useParamsLoc(params: Promise<{ locale?: string }> | undefined) { const p = params ? await params : {}; return setLoc(p.locale); }
+/** Translate an English UI/page string to the current locale (falls back to English). */
+// i18n key collection: run the server with SP_I18N_COLLECT=1 and crawl a non-English locale; missing keys append to data/i18n-missing.txt (see scripts/i18n-*.mjs).
+const miss = (s: string) => { if (process.env.SP_I18N_COLLECT === "1" && s.trim() && /[A-Za-z]/.test(s)) { try { require("fs").appendFileSync(process.cwd() + "/data/i18n-missing.txt", JSON.stringify(s) + "\n"); } catch { /* ignore */ } } return s; };
+export function T(s: string): string { return Tl(getLoc(), s); }
+export function Tl(l: string, s: string): string { if (l === "en") return s; const id = idFor[s]; return (id && dicts[l]?.[id]) ?? miss(s); }
+/** Translate by stable key, e.g. Tk("ui.get-started.ab12cd"). Prefer this in new code; English text lives in lib/tr/en.json. */
+export function Tk(key: string, l = getLoc()): string { return (l !== "en" && dicts[l]?.[key]) || source[key] || key; }
+/** Locale-prefixed internal link. */
+export function L(h: string) { return /^([a-z]+:|#)/.test(h) ? h : `/${getLoc()}${h === "/" ? "" : h}`; }
+export function TT<V>(x: V): V | string { return typeof x === "string" ? T(x) : x; }

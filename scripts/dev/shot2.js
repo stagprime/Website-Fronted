@@ -1,0 +1,20 @@
+const { chromium } = require("playwright-core");
+const O = "../previews/";
+(async () => {
+  const b = await chromium.launch({ executablePath: "/usr/bin/google-chrome", args: ["--no-sandbox"] });
+  const ctx = (w, h, m) => b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: m ? 2 : 1, isMobile: m, hasTouch: m, reducedMotion: "reduce" });
+  let c = await ctx(1440, 900), p = await c.newPage();
+  await p.goto("http://localhost:3000/en", { waitUntil: "load" }); await p.waitForTimeout(1200);
+  await p.screenshot({ path: O + "v2-home-desktop-1440-full.png", fullPage: true });
+  await p.evaluate(() => scrollTo(0, 0)); await p.hover("nav >> text=Services"); await p.waitForTimeout(500);
+  await p.screenshot({ path: O + "v2-megamenu-services-desktop.png" });
+  await p.hover("nav >> text=Ventures"); await p.waitForTimeout(500);
+  await p.screenshot({ path: O + "v2-megamenu-ventures-desktop.png" });
+  await p.goto("http://localhost:3000/en/services/design-development", { waitUntil: "load" }); await p.waitForTimeout(1000);
+  await p.screenshot({ path: O + "v2-service-design-development-desktop.png", fullPage: true });
+  c = await ctx(390, 844, true); p = await c.newPage();
+  await p.goto("http://localhost:3000/en", { waitUntil: "load" }); await p.waitForTimeout(1000);
+  await p.click('button[aria-label="Open menu"]'); await p.waitForTimeout(500);
+  await p.screenshot({ path: O + "v2-mobile-390-menu-drawer.png" });
+  await b.close();
+})();

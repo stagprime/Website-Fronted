@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: stagprime, POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?set in .env}", POSTGRES_DB: stagprime }
+    volumes: [pgdata:/var/lib/postgresql/data]
+    restart: unless-stopped
+  web:
+    build: .
+    env_file: .env
+    environment: { DATABASE_URL: "postgresql://stagprime:${POSTGRES_PASSWORD}@db:5432/stagprime" }
+    ports: ["127.0.0.1:3000:3000"]
+    volumes: [uploads:/app/data]
+    depends_on: [db]
+    restart: unless-stopped
+volumes: { pgdata: {}, uploads: {} }

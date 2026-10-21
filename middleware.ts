@@ -1,0 +1,27 @@
+import { NextRequest, NextResponse } from "next/server";
+import { locales, defaultLocale, geoLocale } from "./lib/i18n";
+const BOT = /bot|crawler|spider|crawling|google|bing|slurp|duckduck|yandex|baidu|facebookexternalhit|lighthouse|semrush|ahrefs/i;
+const has = (l?: string | null): l is string => !!l && (locales as readonly string[]).includes(l);
+function accept(req: NextRequest) {
+  return (req.headers.get("accept-language") || "").split(",").map(s => { const [t, q] = s.trim().split(";q="); return { l: t.slice(0, 2).toLowerCase(), q: q ? Number(q) : 1 }; })
+    .sort((a, b) => b.q - a.q).map(x => x.l).find(has);
+}
+const geo = (req: NextRequest) => { const c = (req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase(); return geoLocale[c]; };
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl; const bot = BOT.test(req.headers.get("user-agent") || "");
+  const seg = pathname.split("/")[1];
+  if (has(seg)) {
+    // Locale already in URL: never redirect. Only set a *suggestion* cookie for the banner (humans without a saved choice).
+    const res = NextResponse.next();
+    if (!bot && !req.cookies.get("NEXT_LOCALE")) { const a = accept(req); const sug = a && a !== seg ? a : geo(req); if (sug && sug !== seg) res.cookies.set("sp_suggest", sug, { path: "/", maxAge: 86400, sameSite: "lax" }); }
+    return res;
+  }
+  // Unprefixed URL. Bots get the default locale content via rewrite (no redirect); humans: cookie > Accept-Language > geo > default.
+  if (bot) return NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${req.nextUrl.search}`, req.url));
+  const c = req.cookies.get("NEXT_LOCALE")?.value;
+  const locale = (has(c) && c) || accept(req) || defaultLocale;
+  const res = NextResponse.redirect(new URL(`/${locale}${pathname === "/" ? "" : pathname}${req.nextUrl.search}`, req.url), 307);
+  const g = geo(req); if (!c && g && g !== locale) res.cookies.set("sp_suggest", g, { path: "/", maxAge: 86400, sameSite: "lax" });
+  return res;
+}
+export const config = { matcher: ["/((?!_next|api|admin|img|rss.xml|llms.txt|llms-full.txt|sitemap|sitemap.xml|robots.txt|.*\\..*).*)"] };
