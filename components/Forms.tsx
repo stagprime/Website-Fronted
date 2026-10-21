@@ -24,7 +24,7 @@ const Submit = ({ sending, children, t }: { sending: boolean; children: React.Re
 export function ContactForm({ services, t, topic }: { services: string[]; t?: FT; topic?: string }) {
   const { onSubmit, sending, status, hp } = useSubmit("contact", t);
   return (
-    <form onSubmit={onSubmit} noValidate={false} className="relative glass rounded-3xl p-6 sm:p-8 grid gap-5 sm:grid-cols-2">
+    <form method="post" onSubmit={onSubmit} noValidate={false} className="relative glass rounded-3xl p-6 sm:p-8 grid gap-5 sm:grid-cols-2">
       <div><label className={lbl} htmlFor="name">{tf(t, "Full name")}</label><input id="name" name="name" required className={inp} autoComplete="name" /></div>
       <div><label className={lbl} htmlFor="email">{tf(t, "Email")}</label><input id="email" name="email" type="email" required className={inp} autoComplete="email" /></div>
       <div><label className={lbl} htmlFor="phone">{tf(t, "Phone / WhatsApp")}</label><input id="phone" name="phone" className={inp} autoComplete="tel" /></div>
@@ -41,7 +41,7 @@ export function ApplyForm({ areas, t }: { areas: string[]; t?: FT }) {
   const R = ({ name, opts }: { name: string; opts: string[] }) => <div className="flex flex-wrap gap-2">{opts.map(o => <label key={o} className="cursor-pointer"><input type="radio" name={name} value={o} className="peer sr-only" /><span className="inline-block rounded-full border border-white/15 px-4 py-2 text-sm text-slate-300 peer-checked:border-sky-brand peer-checked:bg-sky-brand/15 peer-checked:text-white">{tf(t, o)}</span></label>)}</div>;
   const H = ({ n, label }: { n: number; label: string }) => <h2 className="sm:col-span-2 font-display text-lg font-bold text-white pt-4 border-t border-white/10 first:border-0 first:pt-0"><span className="text-sky-brand mr-2">0{n}</span>{tf(t, label)}</h2>;
   return (
-    <form onSubmit={onSubmit} noValidate={false} className="relative glass rounded-3xl p-6 sm:p-10 grid gap-5 sm:grid-cols-2">
+    <form method="post" onSubmit={onSubmit} noValidate={false} className="relative glass rounded-3xl p-6 sm:p-10 grid gap-5 sm:grid-cols-2">
       <H n={1} label="Personal information" />
       <div><label className={lbl} htmlFor="fn">{tf(t, "Full name")}</label><input id="fn" name="name" required className={inp} /></div>
       <div><label className={lbl} htmlFor="em">{tf(t, "Email")}</label><input id="em" name="email" type="email" required className={inp} /></div>
@@ -100,7 +100,7 @@ export function AuthForm({ t, locale = "en", google = false, initial = "login" }
         {(["login", "signup"] as const).map(m => <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => { setMode(m); setSt({ s: "idle" }); }} className={`rounded-full py-2.5 text-sm font-semibold ${mode === m ? "bg-gradient-to-r from-sky-brand to-blue-brand text-white" : "text-slate-300"}`}>{m === "login" ? tf(t, "Login") : tf(t, "Sign up")}</button>)}
       </div>}
       <h1 className="font-display text-2xl font-bold text-white">{mode === "login" ? tf(t, "Login to Your Account") : mode === "signup" ? tf(t, "Create a New Account") : tf(t, "Reset your password")}</h1>
-      <form onSubmit={submit} className="mt-6 grid gap-4">
+      <form method="post" onSubmit={submit} className="mt-6 grid gap-4">
         <div aria-hidden className="absolute -left-[9999px]"><input name="website" tabIndex={-1} autoComplete="off" /></div>
         {mode === "signup" && <div><label className={lbl} htmlFor="an">{tf(t, "Full name")}</label><input id="an" name="name" className={inp} autoComplete="name" /></div>}
         <div><label className={lbl} htmlFor="ae">{tf(t, "Email")}</label><input id="ae" name="email" type="email" required className={inp} autoComplete="email" /></div>
@@ -121,7 +121,7 @@ export function AuthForm({ t, locale = "en", google = false, initial = "login" }
 export function InvestorForm({ t }: { t?: FT }) {
   const { onSubmit, sending, status, hp } = useSubmit("investor", t);
   return (
-    <form onSubmit={onSubmit} className="relative glass rounded-3xl p-6 sm:p-8 grid gap-5 sm:grid-cols-2">
+    <form method="post" onSubmit={onSubmit} className="relative glass rounded-3xl p-6 sm:p-8 grid gap-5 sm:grid-cols-2">
       <div><label className={lbl} htmlFor="iv-n">{tf(t, "Full name")}</label><input id="iv-n" name="name" required className={inp} autoComplete="name" /></div>
       <div><label className={lbl} htmlFor="iv-e">{tf(t, "Email")}</label><input id="iv-e" name="email" type="email" required className={inp} autoComplete="email" /></div>
       <div><label className={lbl} htmlFor="iv-c">{tf(t, "Company / fund (optional)")}</label><input id="iv-c" name="company" className={inp} autoComplete="organization" /></div>
