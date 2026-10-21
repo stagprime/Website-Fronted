@@ -14,9 +14,10 @@ const providers = [
     credentials: { email: {}, password: {}, otp: {} },
     async authorize(c, req) {
       const email = String(c?.email || "").toLowerCase().trim(), password = String(c?.password || "");
+      // Per-account limit is lifted only for local e2e runs (SP_E2E=1, never set on real deployments) so test suites can't lock the admin out.
       // Client IP as seen by our own Nginx (X-Real-IP, or the LAST X-Forwarded-For hop); the first XFF value is client-controlled.
       const ip = clientIp(req?.headers as Headers | undefined);
-      if (!limit(`login:${ip}:${email}`, 8, 15 * 60_000) || !limit(`login-ip:${ip}`, 30, 15 * 60_000) || !limit(`login-acct:${email}`, 20, 60 * 60_000)) throw new Coded("rate");
+      if (!limit(`login:${ip}:${email}`, 8, 15 * 60_000) || !limit(`login-ip:${ip}`, 30, 15 * 60_000) || !limit(`login-acct:${email}`, process.env.SP_E2E === "1" ? 1e6 : 20, 60 * 60_000)) throw new Coded("rate");
       if (!email || password.length < 8) return null;
       const u = await db.user.findUnique({ where: { email } });
       if (!u?.passwordHash || !(await bcrypt.compare(password, u.passwordHash))) return null;
