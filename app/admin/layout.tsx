@@ -9,8 +9,8 @@ export const metadata = { title: { default: "Admin", template: "%s · Stag Prime
 export const dynamic = "force-dynamic";
 /** Admin shell. Every page is gated here (any staff role) AND per page/API by permission (lib/rbac.ts). See ADMIN-NOTES.md. */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const who = await staff(); if (!who) redirect("/en/login?next=/admin");
   const path = (await headers()).get("x-sp-path") || "/admin";
+  const who = await staff(); if (!who) redirect(`/en/login?next=${encodeURIComponent(path.startsWith("/admin") ? path : "/admin")}`);
   const item = NAV.flatMap(g => g.items).filter(i => path === i.href || path.startsWith(i.href + "/")).sort((a, b) => b.href.length - a.href.length)[0];
   const denied = item && !can(who.role, item.perm);
   const nav = NAV.map(g => ({ group: g.group, items: g.items.filter(i => can(who.role, i.perm)) })).filter(g => g.items.length);

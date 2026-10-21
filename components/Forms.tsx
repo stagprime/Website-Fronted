@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { track } from "@/lib/analytics";
+import { safeNext } from "@/lib/safe-next";
 const inp = "w-full rounded-xl bg-navy-950/70 border border-white/10 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-brand focus:outline-none focus:ring-2 focus:ring-sky-brand/30";
 const lbl = "block text-sm text-slate-300 mb-1.5";
 export type FT = Record<string, string>;
@@ -84,7 +85,7 @@ export function AuthForm({ t, locale = "en", google = false, initial = "login" }
         const code = r?.code || "";
         if (code === "otp" || code === "otp-invalid") setOtp(true);
         if (r?.error) setSt({ s: "err", m: tf(t, code === "unverified" ? "Please verify your email first — check your inbox." : code === "otp" ? "Enter the 6-digit code from your authenticator app." : code === "otp-invalid" ? "That code is not valid. Try the current code." : code === "disabled" ? "This account is disabled. Contact us for help." : code === "rate" ? "Too many attempts. Please wait a few minutes." : "Incorrect email or password.") });
-        else { location.href = `/${locale}/account`; }
+        else { location.href = safeNext(new URLSearchParams(location.search).get("next"), `/${locale}/account`); }
         return;
       }
       const r = await fetch("/api/account", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...fd, action: mode === "signup" ? "register" : "forgot", locale }) }); const j = await r.json();
@@ -112,7 +113,7 @@ export function AuthForm({ t, locale = "en", google = false, initial = "login" }
         <p role="status" aria-live="polite" className={`text-sm ${st.s === "ok" ? "text-area-lime" : "text-amber-300"}`}>{st.m}</p>
         {mode === "forgot" && <button type="button" onClick={() => setMode("login")} className="text-sm text-sky-brand">← {tf(t, "Back to login")}</button>}
         {google && mode !== "forgot" && <><div className="flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-white/10" />{tf(t, "or")}<span className="h-px flex-1 bg-white/10" /></div>
-          <button type="button" onClick={async () => { const { signIn } = await import("next-auth/react"); signIn("google", { callbackUrl: `/${locale}/account` }); }} className="rounded-full border border-white/15 py-3 text-sm text-white hover:border-sky-brand">{tf(t, "Continue with Google")}</button></>}
+          <button type="button" onClick={async () => { const { signIn } = await import("next-auth/react"); signIn("google", { callbackUrl: safeNext(new URLSearchParams(location.search).get("next"), `/${locale}/account`) }); }} className="rounded-full border border-white/15 py-3 text-sm text-white hover:border-sky-brand">{tf(t, "Continue with Google")}</button></>}
       </form>
     </div>
   );
