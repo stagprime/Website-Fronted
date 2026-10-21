@@ -100,12 +100,18 @@ await step("translation override goes live and reverts", async () => {
 });
 await step("translations grid lists missing counts", async () => { const g = await api("/api/admin/ui?grid=1&locale=bn"); if (!(g.j?.total > 500)) throw new Error("grid too small"); });
 // ---- media
-await step("media upload, serve, alt, delete", async () => {
+await step("media upload, serve, per-locale alt in image/gallery blocks, delete", async () => {
   const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAADCAYAAAC56t6BAAAAEklEQVR42mP8z8Dwn4EIwDiqEAA3WQT/GRZcRwAAAABJRU5ErkJggg==", "base64");
   const r = await page.evaluate(async b64 => { const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0)); const fd = new FormData(); fd.append("file", new File([bin], "e2e.png", { type: "image/png" })); const x = await fetch("/api/admin/media", { method: "POST", body: fd }); return x.json(); }, png.toString("base64"));
   if (!r.ok) throw new Error(JSON.stringify(r)); const m = r.items[0]; if (m.width !== 2 || m.height !== 3) throw new Error(`dims ${m.width}x${m.height}`);
   const got = await fetch(BASE + m.url); if (got.status !== 200 || got.headers.get("content-type") !== "image/png") throw new Error(`serve ${got.status}`);
   const a = await api("/api/admin/media", "PUT", { id: m.id, alt: { en: "E2E", ar: "اختبار" } }); if (!a.j?.ok) throw new Error("alt save");
+  // Image + gallery blocks without their own alt fall back to the media library's per-locale alt (then English).
+  const key = `/e2e-alt-${Date.now()}`; await api("/api/admin/pages", "POST", { key, title: "E2E Alt" });
+  await api("/api/admin/pages", "PUT", { key, status: "published", mode: "publish", sections: [{ id: "i", type: "image", visible: true, settings: { src: m.url }, content: {} }, { id: "g", type: "gallery", visible: true, settings: { images: [{ src: m.url, alt: "" }] }, content: {} }] });
+  const alts = async l => { await go(`/${l}${key}`); return page.$$eval(`main img[src="${m.url}"]`, es => es.map(e => e.getAttribute("alt"))); };
+  const [en, ar, fr] = [await alts("en"), await alts("ar"), await alts("fr")]; await api(`/api/admin/pages?key=${encodeURIComponent(key)}`, "DELETE");
+  if (en.join() !== "E2E,E2E" || ar.join() !== "اختبار,اختبار" || fr.join() !== "E2E,E2E") throw new Error(`alts en=${en} ar=${ar} fr=${fr}`);
   const evil = await page.evaluate(async () => { const fd = new FormData(); fd.append("file", new File(["<svg onload=alert(1)></svg>"], "x.svg", { type: "image/svg+xml" })); return (await fetch("/api/admin/media", { method: "POST", body: fd })).status; }); if (evil !== 422) throw new Error("malicious SVG accepted");
   await api(`/api/admin/media?id=${m.id}`, "DELETE"); if ((await fetch(BASE + m.url)).status !== 404) throw new Error("deleted file still served");
 });
