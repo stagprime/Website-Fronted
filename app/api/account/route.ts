@@ -5,11 +5,12 @@ import { sendToken, consumeToken } from "@/lib/tokens";
 import { limit } from "@/lib/ratelimit";
 import { sameOrigin } from "@/lib/guard";
 import { auth } from "@/auth";
+import { clientIp } from "@/lib/ip";
 const E = (error: string, status = 422) => NextResponse.json({ ok: false, error }, { status });
 const okEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return E("Invalid origin.", 403);
-  const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0];
+  const ip = clientIp(req.headers);
   if (!limit(`acct:${ip}`, 12, 15 * 60_000)) return E("Too many attempts. Try again in a few minutes.", 429);
   let b: Record<string, string> = {}; try { b = await req.json(); } catch { return E("Invalid request.", 400); }
   if (b.website) return NextResponse.json({ ok: true });

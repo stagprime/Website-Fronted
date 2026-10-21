@@ -9,6 +9,7 @@ import { addMessage, publish, agentsOnline, CHAT_COOKIE } from "@/lib/chat";
 import { aiEnabled, aiReply } from "@/lib/ai";
 import { deliver } from "@/lib/mailer";
 import { locales } from "@/lib/i18n";
+import { clientIp } from "@/lib/ip";
 export const runtime = "nodejs";
 const E = (error: string, status = 422) => NextResponse.json({ ok: false, error }, { status });
 const okEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
@@ -23,7 +24,7 @@ export async function GET(req: Request) {
 }
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return E("Invalid origin", 403);
-  const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
+  const ip = clientIp(req.headers);
   if (!limit(`chat:${ip}`, 40, 600_000)) return E("Too many messages — please wait a moment.", 429);
   const isForm = (req.headers.get("content-type") || "").includes("multipart");
   const b: Record<string, string> = {}; let file: File | null = null;

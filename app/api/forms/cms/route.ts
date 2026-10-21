@@ -3,11 +3,12 @@ import { db, dbReady } from "@/lib/db";
 import { limit } from "@/lib/ratelimit";
 import { sendEmail } from "@/lib/email";
 import type { FormFieldDef, FormSettings } from "@/lib/cms/forms";
+import { clientIp } from "@/lib/ip";
 export const runtime = "nodejs";
 const E = (error: string, status = 422, field?: string) => NextResponse.json({ ok: false, error, field }, { status });
 /** Public endpoint for forms built in Admin → Forms (rendered by the "form" block). Stores a FormSubmission and emails recipients. */
 export async function POST(req: Request) {
-  const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim();
+  const ip = clientIp(req.headers);
   if (!limit(`cmsform:${ip}`, 8, 600_000)) return E("Too many submissions. Please try again later.", 429);
   if (!dbReady()) return E("Forms are unavailable right now.", 503);
   let fd: FormData; try { fd = await req.formData(); } catch { return E("Invalid form data.", 400); }

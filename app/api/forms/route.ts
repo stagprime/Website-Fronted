@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { deliver } from "@/lib/mailer";
+import { clientIp } from "@/lib/ip";
 export const runtime = "nodejs";
 const hits = new Map<string, number[]>();
 const RULES: Record<string, { req: string[]; max: Record<string, number> }> = {
@@ -8,7 +9,7 @@ const RULES: Record<string, { req: string[]; max: Record<string, number> }> = {
   investor: { req: ["name", "email", "interest", "message"], max: { name: 120, email: 200, company: 200, message: 4000 } },
 };
 export async function POST(req: Request) {
-  const ip = (req.headers.get("x-forwarded-for") || "local").split(",")[0].trim(); const now = Date.now();
+  const ip = clientIp(req.headers); const now = Date.now();
   const h = (hits.get(ip) || []).filter(t => now - t < 600000); if (h.length >= 8) return NextResponse.json({ ok: false, error: "Too many submissions. Please try again later." }, { status: 429 }); hits.set(ip, [...h, now]);
   let fd: FormData; try { fd = await req.formData(); } catch { return NextResponse.json({ ok: false, error: "Invalid form data." }, { status: 400 }); }
   if (String(fd.get("website") || "")) return NextResponse.json({ ok: true }); // honeypot: silently accept bots
