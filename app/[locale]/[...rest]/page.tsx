@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { db, dbReady } from "@/lib/db";
-import { loadLoc } from "@/lib/loc";
+import { loadLoc, T } from "@/lib/loc";
 import { pageDoc, pageTitle, txt } from "@/lib/cms/page";
 import { seoMeta } from "@/lib/seo";
 import Blocks from "@/components/Blocks";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 type P = { params: Promise<{ locale: string; rest: string[] }> };
 export async function generateMetadata({ params }: P) {
   await loadLoc(params); const { rest } = await params; const key = "/" + rest.join("/");
-  const doc = pageDoc(key); if (!doc) return { robots: { index: false } };
+  const doc = pageDoc(key); if (!doc) return { title: { absolute: `${T("Page not found")} (404) | Stag Prime` }, robots: { index: false } };
   const hero = doc.find(s => s.type === "hero"); return seoMeta(key, pageTitle(key) || key, hero ? txt(hero, "sub", "") : "");
 }
 export default async function Rest({ params }: P) {

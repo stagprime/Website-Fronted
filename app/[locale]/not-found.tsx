@@ -1,4 +1,5 @@
 import { L, T } from "@/lib/loc";
+export const metadata = { title: { absolute: "Page not found (404) | Stag Prime" }, robots: { index: false } };
 export default function NotFound() {
   return (<section className="relative min-h-[80vh] grid place-items-center px-5 pt-32 pb-20 text-center overflow-hidden">
     <div className="absolute inset-0 grid-bg" /><div className="absolute left-1/2 top-1/3 -translate-x-1/2 w-[32rem] h-[32rem] rounded-full bg-sky-brand/20 blur-[120px]" />
