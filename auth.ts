@@ -30,6 +30,7 @@ const providers = [
   }),
   ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET ? [Google({ allowDangerousEmailAccountLinking: true })] : []),
 ];
+const APP = "site";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db), session: { strategy: "jwt", maxAge: 30 * 24 * 3600 }, providers, trustHost: true,
   pages: { signIn: "/en/login" },
@@ -41,7 +42,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (u) await db.user.update({ where: { id: u.id }, data: { lastLoginAt: new Date() } }).catch(() => {});
       return true;
     },
-    async jwt({ token, user }) { if (user) { token.uid = (user as { id: string }).id; token.role = (user as { role?: string }).role || "customer"; } else if (token.uid && !token.role) { const u = await db.user.findUnique({ where: { id: String(token.uid) } }); token.role = u?.role || "customer"; } return token; },
+    // App claim: a token minted by another Stag Prime app (CMS "cms", business admin "biz") is never accepted here, even with a shared secret.
+    async jwt({ token, user }) { if (token.app && token.app !== APP) return null; if (user) token.app = APP; if (user) { token.uid = (user as { id: string }).id; token.role = (user as { role?: string }).role || "customer"; } else if (token.uid && !token.role) { const u = await db.user.findUnique({ where: { id: String(token.uid) } }); token.role = u?.role || "customer"; } return token; },
     async session({ session, token }) { session.user.id = String(token.uid || token.sub); session.user.role = String(token.role || "customer"); return session; },
   },
 });
