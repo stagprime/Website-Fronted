@@ -44,3 +44,5 @@ body{@apply overflow-x-hidden bg-navy-950 text-slate-200 font-body antialiased}
 .tilt{transform:rotate(var(--r,-3deg));transition:transform .5s cubic-bezier(.2,.8,.2,1)}.tilt:hover{transform:rotate(0) translateY(-6px)}
 .rail{scroll-snap-type:x mandatory;scrollbar-width:none}.rail::-webkit-scrollbar{display:none}.rail>*{scroll-snap-align:start}
 @media (prefers-reduced-motion:reduce){.badge-ring,.mq{animation:none!important}.tilt{transform:none}}
+/* Admin compact density toggle */
+.sp-dense main{font-size:.92rem}.sp-dense main section{padding:.9rem}

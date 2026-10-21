@@ -9,7 +9,7 @@ const security = [
 module.exports = {
   reactStrictMode: true, output: "standalone",
   // Serve all metadata in <head> for every user agent (no streamed metadata) so every crawler/tool sees title, description, canonical.
-  htmlLimitedBots: /.*/,, poweredByHeader: false, trailingSlash: false, compress: true,
+  htmlLimitedBots: /.*/, poweredByHeader: false, trailingSlash: false, compress: true,
   images: { formats: ["image/avif", "image/webp"], minimumCacheTTL: 31536000 },
   async headers() {
     return [
