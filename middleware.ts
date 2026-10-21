@@ -26,7 +26,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(pub(r.to, req), [301, 302, 307, 308].includes(r.code) ? r.code : 301); }
   if (has(seg)) {
     // Locale already in URL: never redirect. Only set a *suggestion* cookie for the banner (humans without a saved choice).
-    const res = NextResponse.next();
+    const rh = new Headers(req.headers); rh.set("x-sp-locale", seg); // lets not-found metadata know the locale (it runs outside [locale] params)
+    const res = NextResponse.next({ request: { headers: rh } });
     if (!bot && !req.cookies.get("NEXT_LOCALE")) { const a = accept(req); const sug = a && a !== seg ? a : geo(req); if (sug && sug !== seg) res.cookies.set("sp_suggest", sug, { path: "/", maxAge: 86400, sameSite: "lax" }); }
     return res;
   }
