@@ -28,7 +28,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <div className="mt-9 flex flex-wrap gap-4 items-start"><BuyButton id="sub:stag-sentinel" locale={l} label={T("Request access")} busy={T("Opening…")} className="rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-7 py-3.5 font-semibold text-white" /><Btn href="https://sentinel.stagprime.com/" ghost ext>{T("Sign in to Sentinel")} ↗</Btn></div>
     </PageHero>
     <section className={`${wrap} pb-20 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center`}>
-      <a href="https://sentinel.stagprime.com/" target="_blank" rel="noopener" data-cursor={T("Open")} className="reveal block overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-black/50"><Image src="/img/real/sentinel-login.webp" alt={T("Stag Prime Sentinel secure sign-in screen")} width={1024} height={640} sizes="(max-width:1024px) 100vw, 55vw" className="w-full h-auto" /></a>
+      <a href="https://sentinel.stagprime.com/" target="_blank" rel="noopener" data-cursor={T("Open")} className="block overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-black/50"><Image src="/img/real/sentinel-login.webp" alt={T("Stag Prime Sentinel secure sign-in screen")} width={1024} height={640} sizes="(max-width:1024px) 100vw, 55vw" priority fetchPriority="high" className="w-full h-auto" /></a>
       <div><Kicker>{T("Features")}</Kicker><ul className="space-y-4">{p.feats!.map(f => <li key={f} className="flex gap-3 text-lg text-slate-200"><span className="text-sky-brand">✓</span>{T(f)}</li>)}</ul></div>
     </section>
     <section className="bg-slate-50 text-navy-900"><div className={`${wrap} py-20 grid md:grid-cols-3 gap-6`}>
