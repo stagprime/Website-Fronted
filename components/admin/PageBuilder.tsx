@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, Button, Card, Field, Input, Modal, Select, Tabs, Textarea, Toggle, api, confirmTyped, fmtDate, toast, cx } from "./kit";
 import MediaPicker from "./MediaPicker";
-type FieldDef = { key: string; label: string; kind: string; i18n?: boolean; options?: string[]; item?: FieldDef[]; help?: string };
+type FieldDef = { key: string; label: string; kind: string; i18n?: boolean; options?: string[]; item?: FieldDef[]; help?: string; placeholder?: string };
 type Section = { id: string; type: string; visible: boolean; settings: Record<string, unknown>; content: Record<string, Record<string, unknown>>; label?: string; schedule?: { from?: string; to?: string }; locales?: string[] };
 type Block = { type: string; name: string; icon: string; fields: FieldDef[]; desc: string };
 type Doc = { key: string; title: string; kind: string; status: string; coded: boolean; sections: Section[]; published: Section[]; hasDraft: boolean; updatedAt?: string; updatedBy?: string; revisions: { id: string; actor: string | null; createdAt: string }[]; registry: { blocks: Block[]; legacy: { id: string; name: string; fields: FieldDef[] }[]; pageHero: FieldDef[] | null } };
@@ -15,7 +15,7 @@ const BODY_FIELDS: FieldDef[] = [{ key: "body", label: "Page body (markdown, ## 
 export default function PageBuilder({ pageKey }: { pageKey: string }) {
   const [d, setD] = useState<Doc | null>(null); const [secs, setSecs] = useState<Section[]>([]); const [sel, setSel] = useState<string | null>(null); const [loc, setLoc] = useState("en"); const [base, setBase] = useState("[]"); const [add, setAdd] = useState(false); const [drag, setDrag] = useState<number | null>(null); const [title, setTitle] = useState(""); const [busy, setBusy] = useState(false);
   const load = useCallback(async () => { const j = await api<Doc>(`/api/admin/pages?key=${encodeURIComponent(pageKey)}`); if (j) { setD(j); setTitle(j.title);
-    let s = j.sections; if (pageKey === "home" && !s.length) s = j.registry.legacy.map(l => ({ id: l.id, type: "legacy", visible: true, settings: {}, content: {} }));
+    let s = j.sections; if (!s.length && j.registry.legacy.length) s = j.registry.legacy.map(l => ({ id: l.id, type: "legacy", visible: true, settings: {}, content: {} }));
     setSecs(s); setBase(JSON.stringify(s)); setSel(x => x && s.some(y => y.id === x) ? x : s[0]?.id ?? null); } }, [pageKey]);
   useEffect(() => { load(); }, [load]);
   const dirty = JSON.stringify(secs) !== base || (d != null && title !== d.title);
@@ -76,13 +76,13 @@ export default function PageBuilder({ pageKey }: { pageKey: string }) {
       {d.registry.pageHero && !has("pageHero") && <AddCard icon="★" name="Page hero override" desc="Change this page's hero kicker, title, subtitle and image" onClick={() => addBlock("pageHero")} />}
       {d.coded && pageKey !== "home" && !has("pageCta") && <AddCard icon="➜" name="Closing CTA override" desc="Change or hide the closing call-to-action" onClick={() => addBlock("pageCta")} />}
       {d.kind === "legal" && !has("richText", "body") && <AddCard icon="§" name="Page body" desc="Replace the legal text (markdown, per language)" onClick={() => addBlock("richText", { settings: { position: "body" } })} />}
-      {pageKey === "home" && d.registry.legacy.filter(l => !secs.some(s => s.type === "legacy" && s.id === l.id)).map(l => <AddCard key={l.id} icon="◧" name={l.name} desc="Built-in home section" onClick={() => { setSecs([...secs, { id: l.id, type: "legacy", visible: true, settings: {}, content: {} }]); setSel(l.id); setAdd(false); }} />)}
+      {d.registry.legacy.filter(l => !secs.some(s => s.type === "legacy" && s.id === l.id)).map(l => <AddCard key={l.id} icon="◧" name={l.name} desc={pageKey === "home" ? "Built-in home section" : "Built-in section of this page"} onClick={() => { setSecs([...secs, { id: l.id, type: "legacy", visible: true, settings: {}, content: {} }]); setSel(l.id); setAdd(false); }} />)}
       {d.registry.blocks.map(b => <AddCard key={b.type} icon={b.icon} name={b.name} desc={b.desc} onClick={() => addBlock(b.type)} />)}</div></Modal>
   </>;
 }
 const AddCard = ({ icon, name, desc, onClick }: { icon: string; name: string; desc: string; onClick: () => void }) => <button onClick={onClick} className="rounded-xl border border-white/10 p-3 text-left hover:border-sky-brand"><span className="text-lg">{icon}</span><p className="font-semibold text-white">{name}</p><p className="text-xs text-slate-400">{desc}</p></button>;
 function FieldInput({ f, v, en, loc, onChange }: { f: FieldDef; v: unknown; en: unknown; loc: string; onChange: (v: unknown) => void }) {
-  const dir = f.i18n && loc === "ar" ? "rtl" : "ltr"; const ph = f.i18n && loc !== "en" && typeof en === "string" && en ? en : undefined; const s = typeof v === "string" ? v : v == null ? "" : String(v);
+  const dir = f.i18n && loc === "ar" ? "rtl" : "ltr"; const ph = f.i18n && loc !== "en" && typeof en === "string" && en ? en : f.placeholder; const s = typeof v === "string" ? v : v == null ? "" : String(v);
   const label = `${f.label}${f.i18n ? ` (${loc})` : ""}`;
   if (f.kind === "bool") return <Field label={f.label} group><Toggle checked={!!v} onChange={onChange} label={v ? "Yes" : "No"} /></Field>;
   if (f.kind === "select") return <Field label={label}><Select value={s} options={["", ...(f.options || [])]} onChange={e => onChange(e.target.value)} /></Field>;

@@ -4,7 +4,7 @@ import { route, ok, fail, str, need } from "@/lib/api";
 import { can } from "@/lib/rbac";
 import { pageRoutes } from "@/lib/routes";
 import { getSettings } from "@/lib/settings";
-import { BLOCKS, HOME_SECTIONS, PAGE_HERO_FIELDS, parseSections, cleanHtml, type Section } from "@/lib/cms/blocks";
+import { BLOCKS, legacyDefs, PAGE_HERO_FIELDS, parseSections, cleanHtml, type Section } from "@/lib/cms/blocks";
 import { audit, snapshot } from "@/lib/audit";
 export const runtime = "nodejs";
 const RESERVED = /^\/(api|admin|_next|media|account|login|checkout|blog|store|services|ventures|sitemap|robots|llms)(\/|$)/;
@@ -19,7 +19,7 @@ export const GET = route("content.edit", async ({ url, who }) => {
     if (!row && !c) return fail("Unknown page", 404);
     const revisions = row ? await db.revision.findMany({ where: { entity: "page", entityId: key }, orderBy: { createdAt: "desc" }, take: 20, select: { id: true, actor: true, createdAt: true } }) : [];
     return ok({ key, title: row?.title || c?.title || key, kind: row?.kind || (c?.group === "Legal" ? "legal" : c ? "page" : "custom"), status: row?.status || "published", coded: !!c, sections: parseSections(row?.draft || row?.sections) || [], published: parseSections(row?.sections) || [], hasDraft: !!row?.draft, updatedAt: row?.updatedAt, updatedBy: row?.updatedBy, revisions,
-      registry: { blocks: BLOCKS.filter(b => !b.ownerOnly || can(who.role, "html.edit")), legacy: key === "home" ? HOME_SECTIONS : [], pageHero: c && key !== "home" ? PAGE_HERO_FIELDS : null } });
+      registry: { blocks: BLOCKS.filter(b => !b.ownerOnly || can(who.role, "html.edit")), legacy: legacyDefs(key), pageHero: c && key !== "home" ? PAGE_HERO_FIELDS : null } });
   }
   const rows = await db.page.findMany({ select: { key: true, title: true, kind: true, status: true, updatedAt: true, updatedBy: true, draft: true } });
   const m = new Map(rows.map(r => [r.key, r])); const list = (await coded()).map(c => ({ ...c, id: c.key, managed: m.has(c.key), status: m.get(c.key)?.status || "published", updatedAt: m.get(c.key)?.updatedAt || null, hasDraft: !!m.get(c.key)?.draft, kind: c.group === "Legal" ? "legal" : "page" }));

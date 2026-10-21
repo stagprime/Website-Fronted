@@ -8,7 +8,8 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { DEFAULTS, SETTING_KEYS } from "../lib/settings";
-import { HOME_SECTIONS } from "../lib/cms/blocks";
+import { HOME_SECTIONS, PAGE_SECTIONS } from "../lib/cms/blocks";
+import fs from "fs";
 import { privacy, terms, editorial } from "../content/legal";
 import { EMAILS } from "../lib/email";
 import { dicts, source, keyOf } from "../lib/tr";
@@ -39,6 +40,27 @@ async function main() {
   for (const [key, title, kind, sections] of pages) c[await upsertOnce("pages", () => db.page.findUnique({ where: { key } }), () => db.page.create({ data: { key, title, kind, status: "published", sections: JSON.stringify(sections), updatedBy: "seed" } }),
     async row => { await db.revision.create({ data: { entity: "page", entityId: key, data: row.sections, actor: "seed" } }); await db.page.update({ where: { key }, data: { sections: JSON.stringify(sections), draft: null } }); })]++;
   log.push(`pages: ${pages.length}`);
+  // 2b. Coded pages (About, Contact, Careers, Blog index, Terms, Privacy): hero image + built-in sections with the current copy.
+  //     Existing documents only get MISSING sections appended (never overwritten); the previous version is kept as a revision.
+  const HERO_IMG: Record<string, string> = { "/about": "page-about", "/contact": "page-contact", "/careers": "page-careers", "/blog": "page-blog", "/terms": "svc-writing-consulting", "/privacy": "venture-stag-vpn" };
+  const TITLES: Record<string, string> = { "/about": "About", "/contact": "Contact", "/careers": "Careers", "/blog": "Blog", "/terms": "Terms of Service", "/privacy": "Privacy Policy" };
+  let codedAdded = 0;
+  for (const [key, defs] of Object.entries(PAGE_SECTIONS)) {
+    const img = fs.existsSync(`public/img/ai/${HERO_IMG[key]}.webp`) ? `/img/ai/${HERO_IMG[key]}.webp` : "";
+    const want = [{ id: "hero", type: "pageHero", visible: true, settings: img ? { image: img } : {}, content: {} },
+      ...defs.map(d => ({ id: d.id, type: "legacy", visible: true, settings: Object.fromEntries(d.fields.filter(f => !f.i18n && f.def !== undefined).map(f => [f.key, f.def])),
+        content: { en: Object.fromEntries(d.fields.filter(f => f.i18n && f.def !== undefined).map(f => [f.key, f.def])) } }))];
+    const row = await db.page.findUnique({ where: { key } });
+    if (!row) { await db.page.create({ data: { key, title: TITLES[key], kind: key === "/terms" || key === "/privacy" ? "legal" : "page", status: "published", sections: JSON.stringify(want), updatedBy: "seed" } }); c.created++; codedAdded += want.length; continue; }
+    const cur = JSON.parse(row.sections || "[]") as { id: string; type: string }[];
+    const missing = want.filter(w => !cur.some(x => (w.type === "pageHero" ? x.type === "pageHero" : x.type === "legacy" && x.id === w.id)));
+    if (!missing.length) { c.kept++; continue; }
+    await db.revision.create({ data: { entity: "page", entityId: key, data: row.sections, actor: "seed" } });
+    const hero = missing.filter(m => m.type === "pageHero"), rest = missing.filter(m => m.type !== "pageHero");
+    // legal docs: body text stays where it is; the meta section goes first so the banner/date are easy to find
+    await db.page.update({ where: { key }, data: { sections: JSON.stringify([...hero, ...cur, ...rest]) } }); c.forced++; codedAdded += missing.length;
+  }
+  log.push(`coded pages: ${Object.keys(PAGE_SECTIONS).length} (${codedAdded} sections added)`);
   // 3. Email templates (English defaults; other locales fall back to English until translated in the admin).
   for (const [key, t] of Object.entries(EMAILS)) c[await upsertOnce("emails", () => db.emailTemplate.findUnique({ where: { key_locale: { key, locale: "en" } } }), () => db.emailTemplate.create({ data: { key, locale: "en", subject: t.subject, body: t.body } }),
     () => db.emailTemplate.update({ where: { key_locale: { key, locale: "en" } }, data: { subject: t.subject, body: t.body } }))]++;

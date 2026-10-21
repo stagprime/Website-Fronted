@@ -4,7 +4,7 @@
  * `content[locale]`; a missing locale falls back to the English override, then to the code default run through T() (existing translations).
  */
 export type FieldKind = "text" | "textarea" | "md" | "url" | "image" | "number" | "bool" | "color" | "select" | "list" | "html";
-export type Field = { key: string; label: string; kind: FieldKind; i18n?: boolean; options?: string[]; item?: Field[]; help?: string; placeholder?: string };
+export type Field = { key: string; label: string; kind: FieldKind; i18n?: boolean; options?: string[]; item?: Field[]; help?: string; placeholder?: string; def?: unknown };
 export type Section = { id: string; type: string; visible: boolean; settings: Record<string, unknown>; content: Record<string, Record<string, unknown>>; label?: string; schedule?: { from?: string; to?: string }; locales?: string[] };
 export type BlockDef = { type: string; name: string; icon: string; fields: Field[]; ownerOnly?: boolean; desc: string };
 
@@ -45,6 +45,41 @@ export const HOME_SECTIONS: LegacyDef[] = [
   { id: "store", name: "Store teaser", fields: [t("kicker", "Kicker")] },
   { id: "cta", name: "Giant marquee CTA", fields: [t("w1", "Word 1"), t("w2", "Word 2 (gradient)"), t("w3", "Word 3")] },
 ];
+/** Built-in sections of other coded pages (About, Contact, Careers, Blog index, legal pages). `def` is the code default:
+ *  the seed copies it into content.en so editors see the live copy; translations still apply through T() while it is unchanged. */
+const d = (key: string, label: string, def: unknown, kind: FieldKind = "text", i18n = true, extra: Partial<Field> = {}): Field => t(key, label, kind, i18n, { def, placeholder: typeof def === "string" ? def : undefined, ...extra });
+const LEGAL = (note: string): LegacyDef[] => [{ id: "legalMeta", name: "Legal: last updated + draft banner", fields: [
+  d("updated", "Last updated (shown in the header)", "2026", "text", false), d("note", "Header note after the date (empty = none)", note, "text"),
+  d("showBanner", "Show the draft banner", true, "bool", false), d("banner", "Draft banner text", "⚠ Draft template for legal review. Not final legal advice.", "text")] }];
+export const PAGE_SECTIONS: Record<string, LegacyDef[]> = {
+  "/about": [
+    { id: "stats", name: "Counters", fields: [d("items", "Counters", [{ value: "5+", label: "Years Experience" }, { value: "150+", label: "Projects Done" }, { value: "100%", label: "In-House Tech" }], "list", true, { item: [t("value", "Value (e.g. 150+)"), t("label", "Label")] })] },
+    { id: "vision", name: "Vision & mission", fields: [d("visionKicker", "Vision kicker", "Vision"), d("vision", "Vision", "To become the most trusted and innovative digital partner for businesses worldwide, empowering growth through cutting-edge solutions and strategic guidance.", "textarea"),
+      d("missionKicker", "Mission kicker", "Mission"), d("mission", "Mission", "To deliver comprehensive digital services that drive measurable results, create meaningful experiences, and build long-lasting client relationships.", "textarea")] },
+    { id: "story", name: "Our story + offices", fields: [d("kicker", "Kicker", "Our story"), d("heading", "Heading", "Every business deserves top-tier digital solutions."),
+      d("body", "Story", "What started as a small team of creatives and strategists has grown into a full-service digital agency, delivering everything from marketing and advertising to e-commerce, SaaS, consulting and technology solutions. Stag Prime combines creativity, innovation and strategy to help brands thrive in a digital-first world.", "textarea"),
+      d("usTitle", "USA office title", "USA — Stag Prime LLC"), d("usText", "USA office text", "Registered in Wyoming (2026). 30 N Gould St #23907, Sheridan, WY 82801, USA.", "textarea"),
+      d("bdTitle", "Bangladesh office title", "Bangladesh — Operations"), d("bdText", "Bangladesh office text", "Our in-house tech, design and marketing team. 268/C Kadirganj, Boalia, Rajshahi-6000.", "textarea")] },
+    { id: "founder", name: "Founder", fields: [d("kicker", "Kicker", "Founder"), d("name", "Name", "Md Tariq Hossain", "text", false), d("role", "Role", "CEO / Founder, Stag Prime LLC"),
+      d("bio", "Bio", "Md Tariq Hossain founded Stag Prime to bring the operator mindset to client work. Under his leadership the team built and sold the Stag VPN app, grew a print-on-demand network of 10,000+ designs across six marketplaces, publishes on Amazon KDP and YouTube, and builds its own SaaS, including Stag Prime Sentinel.", "textarea")] },
+    { id: "trust", name: "Profiles & platforms strip", fields: [] },
+  ],
+  "/contact": [
+    { id: "form", name: "Contact form + channels", fields: [] },
+    { id: "offices", name: "Offices", fields: [d("hqTitle", "HQ title", "Global HQ — Stag Prime LLC"), d("hqText", "HQ address", "30 N Gould St #23907, Sheridan, WY 82801, USA"), d("bdTitle", "Bangladesh title", "Bangladesh Office"), d("bdText", "Bangladesh address", "268/C Kadirganj, Boalia, Rajshahi-6000")] },
+  ],
+  "/careers": [
+    { id: "apply", name: "Apply button (in the hero)", fields: [d("label", "Button label", "Apply now"), d("href", "Link", "/job-apply", "url", false)] },
+    { id: "cards", name: "Programs", fields: [d("items", "Cards", [{ title: "Team roles", text: "Marketing, development, design, Amazon & YouTube, writing and consulting.", icon: "briefcase" }, { title: "Internship program", text: "Hands-on internships in Web Dev, App Dev, SEO and Content.", icon: "users" }, { title: "Students & alumni", text: "Training tracks in graphic design, CPA marketing and web development.", icon: "book" }], "list", true, { item: [t("title", "Title"), t("text", "Text", "textarea"), t("icon", "Icon name", "text", false)] })] },
+  ],
+  "/blog": [
+    { id: "posts", name: "Post list", fields: [d("leadLabel", "Featured label", "Cornerstone guide"), d("readLabel", "Featured link text", "Read the guide")] },
+  ],
+  "/terms": LEGAL("Template — pending legal review before launch."),
+  "/privacy": LEGAL("Template — pending legal review before launch."),
+};
+/** Legacy (built-in) section registry for any page key. */
+export const legacyDefs = (key: string): LegacyDef[] => key === "home" ? HOME_SECTIONS : PAGE_SECTIONS[key] || [];
 export const PAGE_HERO_FIELDS: Field[] = [t("kicker", "Kicker"), t("title", "Title"), t("sub", "Subtitle", "textarea"), t("image", "Hero image (empty = default)", "image", false)];
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
