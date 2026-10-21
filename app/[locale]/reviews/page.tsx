@@ -1,11 +1,11 @@
+import { S } from "@/lib/site";
 import { useParamsLoc, L, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import Icon from "@/components/Icon";
-import { profiles } from "@/content/site";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/reviews", "Reviews & Public Profiles", "Read independent reviews of Stag Prime on Trustpilot, Clutch, Yelp, Crunchbase and Google Play."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { profiles } = S();  return await seoMeta("/reviews", "Reviews & Public Profiles", "Read independent reviews of Stag Prime on Trustpilot, Clutch, Yelp, Crunchbase and Google Play."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { profiles } = S(); 
   return (<>
     <JsonLd data={breadcrumb([["Reviews", "/reviews"]])} />
     <PageHero img={ai("manifesto-studio")} kicker="Reviews" title={<>{T("Don't take our word for it —")} <span className="grad-text">{T("check our profiles.")}</span></>} sub="We only show verified, independent reviews. Read them directly on each platform, or leave one after your project." crumbs={[["Reviews", "/reviews"]]} />

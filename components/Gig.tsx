@@ -1,6 +1,6 @@
 import { BuyButton } from "./Buy";
 import { T, getLoc, L } from "@/lib/loc";
-import { gigOf } from "@/content/gigs";
+import { gigOf } from "@/lib/site";
 import { ViewContent } from "./Track";
 export function GigPackages({ svc, color }: { svc: string; color: string }) {
   const g = gigOf(svc); if (!g) return null; const l = getLoc();

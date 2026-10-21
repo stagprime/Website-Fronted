@@ -8,7 +8,7 @@ import { ContactForm } from "@/components/Forms";
 import { getContact, getServices } from "@/lib/content";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/contact", "Contact & Book a Call", "Talk to Stag Prime: WhatsApp or call +1 307-396-4184, Telegram @stagprime, email brand@stagprime.com, or send a project brief."); }
 export default async function Page({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ topic?: string }> }) { await useParamsLoc(params); const [CONTACT, services] = await Promise.all([getContact(), getServices()]); const topic = (await searchParams).topic?.slice(0, 120);
-  const ch = [["WhatsApp", CONTACT.whatsapp, CONTACT.phone, "#20BF55"], ["Telegram", CONTACT.telegram, "@stagprime", "#2AABEE"], ["Call", CONTACT.tel, CONTACT.phone, "#1071B2"], ["Email", `mailto:${CONTACT.email}`, CONTACT.email, "#48BDED"], ["Support", `mailto:${CONTACT.support}`, CONTACT.support, "#3FB7D3"]];
+  const ch = [["WhatsApp", CONTACT.whatsapp, CONTACT.phone, "#20BF55"], ["Telegram", CONTACT.telegram, CONTACT.telegramHandle, "#2AABEE"], ["Call", CONTACT.tel, CONTACT.phone, "#1071B2"], ["Email", `mailto:${CONTACT.email}`, CONTACT.email, "#48BDED"], ["Support", `mailto:${CONTACT.support}`, CONTACT.support, "#3FB7D3"]];
   return (<>
     <JsonLd data={breadcrumb([["Contact", "/contact"]])} />
     <PageHero kicker="Let's Talk Business" title={<>{T("Ready to scale?")} <span className="grad-text">{T("Let's talk.")}</span></>} sub="Fill out the form, message us, or book a free strategy call." img={ai("page-contact")} crumbs={[["Contact", "/contact"]]} />

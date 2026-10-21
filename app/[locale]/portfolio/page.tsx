@@ -1,14 +1,14 @@
+import { S } from "@/lib/site";
 import { useParamsLoc, L, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import Icon from "@/components/Icon";
-import { portfolio } from "@/content/site";
 import Image from "next/image";
 import { MerchGrid } from "@/components/Galleries";
 import { vpn } from "@/lib/art";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/portfolio", "Company Portfolio & Case Studies", "Real results: Stag VPN built and sold to NexGlobo, a FinTech dashboard for a US client, 300% ROI e-commerce campaigns, and Redbubble best-selling designs."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { portfolio } = S();  return await seoMeta("/portfolio", "Company Portfolio & Case Studies", "Real results: Stag VPN built and sold to NexGlobo, a FinTech dashboard for a US client, 300% ROI e-commerce campaigns, and Redbubble best-selling designs."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { portfolio } = S(); 
   return (<>
     <JsonLd data={breadcrumb([["Portfolio", "/portfolio"]])} />
     <PageHero img={ai("hero-collage")} kicker="Our Masterpieces" title={<>{T("Real results.")} <span className="grad-text">{T("Real growth.")}</span></>} sub="Selected work across development, marketing and creative & POD." crumbs={[["Portfolio", "/portfolio"]]} />

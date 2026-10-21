@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { wrap } from "@/components/ui";
 import { RequirementsForm, MessageForm, DeliveryActions } from "@/components/AccountUI";
 import { acctT, STEPS, stepLabel } from "@/lib/acct";
-import { gigOf } from "@/content/gigs";
+import { gigOf } from "@/lib/site";
 export const dynamic = "force-dynamic";
 export async function generateMetadata() { return { title: "Order", robots: { index: false, follow: false } }; }
 export default async function Page({ params }: { params: Promise<{ locale: string; id: string }> }) { await useParamsLoc(params);

@@ -1,4 +1,5 @@
 @tailwind base;@tailwind components;@tailwind utilities;
+:root{--c-navy950:6 23 51;--c-navy900:11 22 49;--c-navy800:14 35 70;--c-sky:72 189 237;--c-blue:16 113 178;--c-red:211 63 73;--c-green:26 147 111;--c-lime:32 191 85;--c-purple:150 73 203;--c-teal:63 183 211}
 html{overflow-x:hidden;scroll-behavior:smooth;background:#061733}
 body{@apply overflow-x-hidden bg-navy-950 text-slate-200 font-body antialiased}
 .grad-text{background:linear-gradient(90deg,#48BDED,#3FB7D3 40%,#1071B2);-webkit-background-clip:text;background-clip:text;color:transparent}

@@ -13,13 +13,13 @@ export const runtime = "nodejs";
 const E = (error: string, status = 422) => NextResponse.json({ ok: false, error }, { status });
 const okEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 async function current() { const id = (await cookies()).get(CHAT_COOKIE)?.value; return id ? db.chatConversation.findUnique({ where: { id } }) : null; }
-const state = () => ({ ai: aiEnabled(), agents: agentsOnline.size > 0 });
+const state = async () => ({ ai: await aiEnabled(), agents: agentsOnline.size > 0 });
 /** GET → current conversation + messages (also used as polling fallback with ?since=ISO). */
 export async function GET(req: Request) {
-  const c = await current(); if (!c) return NextResponse.json({ ok: true, conversation: null, ...state() });
+  const c = await current(); if (!c) return NextResponse.json({ ok: true, conversation: null, ...(await state()) });
   const since = new URL(req.url).searchParams.get("since");
   const messages = await db.chatMessage.findMany({ where: { conversationId: c.id, ...(since && { createdAt: { gt: new Date(since) } }) }, orderBy: { createdAt: "asc" }, take: 200 });
-  return NextResponse.json({ ok: true, conversation: { id: c.id, status: c.status, name: c.name }, messages, ...state() });
+  return NextResponse.json({ ok: true, conversation: { id: c.id, status: c.status, name: c.name }, messages, ...(await state()) });
 }
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return E("Invalid origin", 403);
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const c = await db.chatConversation.create({ data: { name, email, locale, page: String(b.page || "").slice(0, 300), userId: s?.user?.id } });
     (await cookies()).set(CHAT_COOKIE, c.id, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 30 * 86400 });
     publish({ type: "status", conversationId: c.id, data: { status: "open", new: true } });
-    return NextResponse.json({ ok: true, conversation: { id: c.id, status: c.status, name: c.name }, ...state() });
+    return NextResponse.json({ ok: true, conversation: { id: c.id, status: c.status, name: c.name }, ...(await state()) });
   }
   const c = await current(); if (!c) return E("Chat session expired — please start again.", 404);
   if (b.action === "typing") { publish({ type: "typing", conversationId: c.id, data: { who: "visitor" } }); return NextResponse.json({ ok: true }); }
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     }
     if (!body && !saved) return E("Write a message first.");
     const m = await addMessage(c.id, "visitor", body || f!.name, saved);
-    if (c.status === "open" && aiEnabled()) { // AI first responder (until a human takes over)
+    if (c.status === "open" && await aiEnabled()) { // AI first responder (until a human takes over)
       publish({ type: "typing", conversationId: c.id, data: { who: "ai" } });
       const hist = await db.chatMessage.findMany({ where: { conversationId: c.id, sender: { in: ["visitor", "ai", "agent"] } }, orderBy: { createdAt: "asc" }, take: 30 });
       const a = await aiReply(hist, c.locale); if (a) await addMessage(c.id, "ai", a);

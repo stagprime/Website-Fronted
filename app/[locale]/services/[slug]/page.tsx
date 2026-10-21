@@ -1,18 +1,17 @@
+import { S, gigOf } from "@/lib/site";
 import { useParamsLoc, L, T, TT, getLoc } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import { GigPackages } from "@/components/Gig";
 import { ServiceProducts } from "@/components/Store";
-import { gigOf } from "@/content/gigs";
 import Icon from "@/components/Icon";
 import { notFound } from "next/navigation";
-import { services, pricing, extended, faqs, process } from "@/content/site";
 import { SITE } from "@/lib/i18n";
-export function generateStaticParams() { return services.map(s => ({ slug: s.slug })); }
+export async function generateStaticParams() { const { getSettings } = await import("@/lib/settings"); return (await getSettings()).services.map(s => ({ slug: s.slug })); }
 type P = { params: Promise<{ slug: string; locale: string }> };
-export async function generateMetadata({ params }: P) { await useParamsLoc(params); const { slug } = await params; const s = services.find(x => x.slug === slug); return s ? await seoMeta(`/services/${s.slug}`, `${T(s.title)} Services`, s.intro) : {}; }
-export default async function Page({ params }: P) { await useParamsLoc(params);
+export async function generateMetadata({ params }: P) { await useParamsLoc(params); const { services, pricing, extended, faqs, process } = S();  const { slug } = await params; const s = services.find(x => x.slug === slug); return s ? await seoMeta(`/services/${s.slug}`, `${T(s.title)} Services`, s.intro) : {}; }
+export default async function Page({ params }: P) { await useParamsLoc(params); const { services, pricing, extended, faqs, process } = S(); 
   const { slug } = await params; const s = services.find(x => x.slug === slug); if (!s) notFound();
   const price = pricing.find(p => p.slug === s.slug); const others = services.filter(x => x.slug !== s.slug);
   const ld = { "@context": "https://schema.org", "@type": "Service", name: s.title, serviceType: s.title, description: s.intro, provider: { "@id": `${SITE}/#org` }, areaServed: "Worldwide", url: `${SITE}/${getLoc()}/services/${s.slug}`,

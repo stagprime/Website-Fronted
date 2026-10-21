@@ -1,11 +1,11 @@
+import { S } from "@/lib/site";
 import { useParamsLoc, L, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import Icon from "@/components/Icon";
-import { services, portfolio } from "@/content/site";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/case-studies", "Case Studies & Consulting Services", "How Stag Prime delivers result-oriented solutions: our consulting approach across marketing, development, Amazon, YouTube and SaaS, with real case studies."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { services, portfolio } = S();  return await seoMeta("/case-studies", "Case Studies & Consulting Services", "How Stag Prime delivers result-oriented solutions: our consulting approach across marketing, development, Amazon, YouTube and SaaS, with real case studies."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { services, portfolio } = S(); 
   return (<>
     <JsonLd data={breadcrumb([["Case Studies & Consulting", "/case-studies"]])} />
     <PageHero img={ai("svc-writing-consulting")} kicker="Case Studies & Consulting" title={<>{T("Result-oriented solutions,")} <span className="grad-text">{T("proven on our own businesses.")}</span></>} sub="Every engagement follows the same structure: understand the challenge, set goals, apply a strategy, and measure results." crumbs={[["Case Studies & Consulting", "/case-studies"]]} />

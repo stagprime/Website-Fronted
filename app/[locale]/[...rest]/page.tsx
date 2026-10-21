@@ -1,12 +1,23 @@
-import { notFound, redirect, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { db, dbReady } from "@/lib/db";
+import { useParamsLoc } from "@/lib/loc";
+import { pageDoc, pageTitle, txt } from "@/lib/cms/page";
+import { seoMeta } from "@/lib/seo";
+import Blocks from "@/components/Blocks";
 export const dynamic = "force-dynamic";
-/** Unmatched URL → check the redirect manager (/admin/seo → Redirects), else branded 404. Gone (410) entries render the 404 page. */
-export default async function Rest({ params }: { params: Promise<{ locale: string; rest: string[] }> }) {
-  const { locale, rest } = await params; const p = "/" + rest.join("/");
-  if (dbReady()) {
-    const r = await db.redirect.findFirst({ where: { from: { in: [`/${locale}${p}`, p] } } }).catch(() => null);
-    if (r && r.code !== 410) { db.redirect.update({ where: { id: r.id }, data: { hits: { increment: 1 } } }).catch(() => {}); const to = r.to.startsWith("/") && !/^\/[a-z]{2}(\/|$)/.test(r.to) ? `/${locale}${r.to}` : r.to; if (r.code === 302) redirect(to); permanentRedirect(to); }
-  }
+/**
+ * Unmatched URL → a custom page built in Admin → Pages (key "/<slug>"), else the branded 404 (logged for Admin → SEO → 404 log).
+ * Redirects and 410 Gone are handled earlier in middleware.ts.
+ */
+type P = { params: Promise<{ locale: string; rest: string[] }> };
+export async function generateMetadata({ params }: P) {
+  await useParamsLoc(params); const { rest } = await params; const key = "/" + rest.join("/");
+  const doc = pageDoc(key); if (!doc) return { robots: { index: false } };
+  const hero = doc.find(s => s.type === "hero"); return seoMeta(key, pageTitle(key) || key, hero ? txt(hero, "sub", "") : "");
+}
+export default async function Rest({ params }: P) {
+  await useParamsLoc(params); const { locale, rest } = await params; const key = "/" + rest.join("/");
+  const doc = pageDoc(key); if (doc) return <Blocks sections={doc} />;
+  if (dbReady()) { const path = `/${locale}${key}`.slice(0, 300); await db.notFoundLog.upsert({ where: { path }, create: { path }, update: { hits: { increment: 1 } } }).catch(() => null); }
   notFound();
 }

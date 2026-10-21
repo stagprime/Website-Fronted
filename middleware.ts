@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { locales, defaultLocale, geoLocale } from "./lib/i18n";
+import { findRedirect, countHit, GONE_HTML } from "./lib/redirects";
 const BOT = /bot|crawler|spider|crawling|google|bing|slurp|duckduck|yandex|baidu|facebookexternalhit|lighthouse|semrush|ahrefs/i;
 const has = (l?: string | null): l is string => !!l && (locales as readonly string[]).includes(l);
 function accept(req: NextRequest) {
@@ -7,9 +8,14 @@ function accept(req: NextRequest) {
     .sort((a, b) => b.q - a.q).map(x => x.l).find(has);
 }
 const geo = (req: NextRequest) => { const c = (req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase(); return geoLocale[c]; };
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl; const bot = BOT.test(req.headers.get("user-agent") || "");
   const seg = pathname.split("/")[1];
+  // Redirect manager (Admin → SEO → Redirects): 301/302/307/308 redirect, 410 Gone with a real 410 status.
+  const r = await findRedirect(pathname, locales);
+  if (r) { void countHit(r.id);
+    if (r.code === 410 || r.code === 451) return new NextResponse(GONE_HTML(`/${has(seg) ? seg : defaultLocale}`), { status: r.code, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
+    return NextResponse.redirect(new URL(r.to, req.url), [301, 302, 307, 308].includes(r.code) ? r.code : 301); }
   if (has(seg)) {
     // Locale already in URL: never redirect. Only set a *suggestion* cookie for the banner (humans without a saved choice).
     const res = NextResponse.next();
@@ -24,4 +30,4 @@ export function middleware(req: NextRequest) {
   const g = geo(req); if (!c && g && g !== locale) res.cookies.set("sp_suggest", g, { path: "/", maxAge: 86400, sameSite: "lax" });
   return res;
 }
-export const config = { matcher: ["/((?!_next|api|admin|img|rss.xml|llms.txt|llms-full.txt|sitemap|sitemap.xml|robots.txt|.*\\..*).*)"] };
+export const config = { runtime: "nodejs", matcher: ["/((?!_next|api|admin|img|rss.xml|llms.txt|llms-full.txt|sitemap|sitemap.xml|robots.txt|.*\\..*).*)"] };

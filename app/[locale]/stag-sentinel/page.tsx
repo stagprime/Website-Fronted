@@ -1,13 +1,12 @@
+import { S } from "@/lib/site";
 import Image from "next/image";
 import { useParamsLoc, L, T, getLoc } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, wrap, Btn, CTA, Kicker, H2 } from "@/components/ui";
 import { ai } from "@/lib/art";
-import { products } from "@/content/site";
 import { SITE } from "@/lib/i18n";
 import { BuyButton } from "@/components/Buy";
 import { ViewContent } from "@/components/Track";
-const p = products.find(x => x.slug === "stag-sentinel")!;
 const faq: [string, string][] = [
   ["What is Stag Prime Sentinel?", "Stag Prime Sentinel is an infrastructure monitoring platform by Stag Prime LLC. It gives approved teams one secure view of every server and every client workspace, with role-based access."],
   ["Who is Sentinel for?", "Teams that operate server fleets for several clients or brands — for example VPN businesses, hosting resellers and agencies managing client infrastructure."],
@@ -15,8 +14,8 @@ const faq: [string, string][] = [
   ["How do I get access?", "Sentinel is available to approved teams. Request access and our team will contact you to set up your workspace and plan."],
   ["How are logins secured?", "Sessions are kept in a secure cookie and passwords are never stored in the browser."],
 ];
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/stag-sentinel", "Stag Prime Sentinel — Multi-Client Server Monitoring", "Role-based infrastructure monitoring for VPN businesses and multi-client teams: every server, every client, one secure view. Request access.", "/img/real/sentinel-login.webp"); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { products } = S(); const p = products.find(x => x.slug === "stag-sentinel") ?? products.find(x => x.kind === "saas")!;  return await seoMeta("/stag-sentinel", "Stag Prime Sentinel — Multi-Client Server Monitoring", "Role-based infrastructure monitoring for VPN businesses and multi-client teams: every server, every client, one secure view. Request access.", "/img/real/sentinel-login.webp"); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { products } = S(); const p = products.find(x => x.slug === "stag-sentinel") ?? products.find(x => x.kind === "saas")!; 
   const l = getLoc();
   const ld = { "@context": "https://schema.org", "@type": "SoftwareApplication", name: "Stag Prime Sentinel", applicationCategory: "BusinessApplication", applicationSubCategory: "Infrastructure monitoring", operatingSystem: "Web", url: "https://sentinel.stagprime.com/", image: `${SITE}/img/real/sentinel-login.webp`, description: T(p.d), featureList: p.feats, publisher: { "@id": `${SITE}/#org` }, offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Plans configured per team on request", availability: "https://schema.org/InStock" } };
   return (<>

@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export async function GET(req: Request) {
   if (!(await requireStaff())) return deny(); const locale = new URL(req.url).searchParams.get("locale") || "en";
   const recs = await db.seoRecord.findMany({ where: { locale } }); const m = new Map(recs.map(r => [r.path, r]));
-  return NextResponse.json({ ok: true, pages: allRoutes.map(p => ({ path: p || "/", record: m.get(p || "/") || null })) });
+  return NextResponse.json({ ok: true, pages: (await allRoutes()).map(p => ({ path: p || "/", record: m.get(p || "/") || null })) });
 }
 /** POST {action:"analyze", path, locale, focusKw?} | {action:"save", path, locale, ...fields} | {action:"reset", path, locale} */
 export async function POST(req: Request) {

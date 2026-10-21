@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
-import { catalog, gigItems } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog";
+import { redeemCoupon } from "@/lib/coupons";
 import { capi } from "@/lib/capi";
 import { deliverMail } from "@/lib/mailer";
 export const runtime = "nodejs";
@@ -21,17 +22,28 @@ export async function POST(req: Request) {
     const s = ev.data.object; if (s.payment_status !== "paid" && s.mode !== "subscription") return NextResponse.json({ ok: true });
     const item = String(s.metadata?.item || ""); const email = String(s.customer_details?.email || s.customer_email || "").toLowerCase();
     const kind = item.startsWith("gig:") ? "service" : item.startsWith("sub:") ? "subscription" : item === "donation" ? "donation" : "product";
-    const g = gigItems[item]; const user = email ? await db.user.findUnique({ where: { email } }) : null;
+    const { catalog, gigItems } = await getCatalog(); const g = gigItems[item]; const user = email ? await db.user.findUnique({ where: { email } }) : null;
     const exists = await db.order.findUnique({ where: { stripeSessionId: s.id } });
     if (!exists) {
-      const o = await db.order.create({ data: { email, userId: user?.id, kind: kind as never, item, title: catalog[item]?.name || item, amount: s.amount_total || 0, currency: s.currency || "usd", stripeSessionId: s.id, stripePaymentId: s.payment_intent || s.subscription,
+      const o = await db.order.create({ data: { email, userId: user?.id, kind: kind as never, item, title: catalog[item]?.name || item, amount: s.amount_total || 0, currency: s.currency || "usd", stripeSessionId: s.id, stripePaymentId: s.payment_intent || s.subscription, couponCode: s.metadata?.coupon || null, locale: String(s.locale || "en").slice(0, 5),
         status: (kind === "service" ? "pending" : "completed") as never, dueAt: g ? new Date(Date.now() + g.days * 86400_000) : null } });
+      if (s.metadata?.coupon) await redeemCoupon(String(s.metadata.coupon));
       await db.orderEvent.create({ data: { orderId: o.id, status: o.status, note: kind === "service" ? "Payment received — please submit your requirements." : "Payment received." } });
       if (kind === "product") { const dl = await db.download.findUnique({ where: { sku: item.replace("product:", "") } }); if (dl) await db.orderFile.create({ data: { orderId: o.id, name: dl.name, path: dl.path, kind: "download" } }); }
       if (email) await deliverMail(email, `Your Stag Prime order: ${o.title}`, `Thank you for your order!\n\n${o.title}\nAmount: $${(o.amount / 100).toFixed(2)}\n\nTrack it, download files and message our team in your account: ${process.env.NEXT_PUBLIC_SITE_URL || "https://www.stagprime.com"}/en/account\n(Create an account with ${email} to see this order.)`);
       await deliverMail(process.env.MAIL_TO || "brand@stagprime.com", `[order] ${o.title} — ${email}`, `New ${kind} order ${o.id}\n${o.title}\n$${(o.amount / 100).toFixed(2)}\n${email}`);
       // Purchase via CAPI with event_id = session id (dedups with the browser Pixel event on the success page).
       await capi("Purchase", s.id, { email, value: (s.amount_total || 0) / 100, currency: (s.currency || "usd").toUpperCase(), url: s.success_url, custom: { content_ids: [item] } });
+    }
+  }
+  // Refunds issued from Admin → Orders (or the Stripe dashboard) are confirmed here.
+  if (ev.type === "charge.refunded") {
+    const ch = ev.data.object; const pi = String(ch.payment_intent || "");
+    const o = pi ? await db.order.findFirst({ where: { stripePaymentId: pi } }) : null;
+    if (o) {
+      const refunded = Number(ch.amount_refunded || 0); const full = refunded >= o.amount;
+      await db.order.update({ where: { id: o.id }, data: { refundedAmount: refunded, ...(full && { status: "refunded" as never }) } });
+      await db.orderEvent.create({ data: { orderId: o.id, status: (full ? "refunded" : o.status) as never, kind: "refund", note: `Stripe confirmed refund: $${(refunded / 100).toFixed(2)}${full ? " (full)" : " (partial)"}.` } });
     }
   }
   return NextResponse.json({ received: true });

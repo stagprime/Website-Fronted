@@ -1,5 +1,7 @@
-import { CONTACT } from "@/lib/i18n";
-import { profiles, partners } from "@/content/site";
+import { S, setCurrentPage, currentPage } from "@/lib/site";
+import { pageDoc, txt } from "@/lib/cms/page";
+import Blocks from "@/components/Blocks";
+import CtaCard from "@/components/CtaCard";
 import { L, T, getLoc } from "@/lib/loc";
 import Art from "./Art";
 export { L, T };
@@ -24,8 +26,13 @@ export function Kicker({ children, light }: { children: React.ReactNode; light?:
 export function H2({ children, light }: { children: React.ReactNode; light?: boolean }) {
   return <h2 data-split="scroll" className={`font-display text-3xl sm:text-5xl font-bold leading-[1.1] tracking-tight ${light ? "text-navy-900" : "text-white"}`}>{tx(children)}</h2>;
 }
-export function PageHero({ kicker, title, sub, crumbs, color = "#48BDED", img, children }: { kicker: string; title: React.ReactNode; sub?: string; crumbs: [string, string][]; color?: string; img?: string | null; children?: React.ReactNode }) {
-  return (
+export function PageHero({ kicker, title, sub, crumbs, color = "#48BDED", img, children, pageKey }: { kicker: string; title: React.ReactNode; sub?: string; crumbs: [string, string][]; color?: string; img?: string | null; children?: React.ReactNode; pageKey?: string }) {
+  // CMS: the page document (Admin → Pages) can override the hero copy/image and add blocks below the hero / before the final CTA.
+  const key = pageKey || crumbs.at(-1)?.[1] || ""; setCurrentPage(key);
+  const doc = key ? pageDoc(key) : null; const h = doc?.find(s => s.type === "pageHero");
+  if (h && !h.visible) return doc ? <Blocks sections={doc} filter={s => s.type !== "pageHero" && s.type !== "pageCta" && s.settings?.position !== "end" && s.settings?.position !== "body"} /> : null;
+  if (h) { kicker = txt(h, "kicker", kicker); const ov = txt(h, "title", ""); if (ov && (h.content?.en?.title || h.content?.[getLoc()]?.title)) title = ov; if (h.content?.[getLoc()]?.sub || h.content?.en?.sub) sub = txt(h, "sub", sub || ""); const im = h.settings?.image as string | undefined; if (im) img = im; }
+  return (<>
     <section className="relative overflow-hidden pt-36 pb-20 sm:pt-44 sm:pb-24">
       <div className="absolute inset-0 grid-bg" />
       <div className="absolute -top-40 left-1/3 w-[36rem] h-[36rem] rounded-full blur-[120px] opacity-25" style={{ background: color }} />
@@ -41,13 +48,14 @@ export function PageHero({ kicker, title, sub, crumbs, color = "#48BDED", img, c
         {children}
       </div>
     </section>
-  );
+    {doc && <Blocks sections={doc} filter={s => s.type !== "pageHero" && s.type !== "pageCta" && s.settings?.position !== "end" && s.settings?.position !== "body"} />}
+  </>);
 }
 export function Btn({ href, children, ghost, ext }: { href: string; children: React.ReactNode; ghost?: boolean; ext?: boolean }) {
   return <a href={L(href)} data-cursor={ghost ? undefined : "Go"} target={ext ? "_blank" : undefined} rel={ext ? "noopener" : undefined} className={ghost ? "inline-block rounded-full border border-sky-brand/40 px-7 py-3.5 font-semibold text-sky-brand hover:bg-sky-brand/10 transition" : "inline-block rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-7 py-3.5 font-semibold text-white shadow-xl shadow-sky-brand/25 hover:shadow-sky-brand/50 transition"}>{tx(children)}</a>;
 }
 export function TrustStrip() {
-  const items = [...profiles.map(p => ({ n: p.n, u: p.u })), ...partners.tech.map(n => ({ n, u: "" }))];
+  const { profiles, partners } = S(); const items = [...profiles.map(p => ({ n: p.n, u: p.u })), ...partners.tech.map(n => ({ n, u: "" }))];
   return (
     <section aria-label={T("Profiles and platforms")} className="bg-slate-50 text-navy-900">
       <div className={`${wrap} py-12 flex flex-col lg:flex-row gap-6 lg:items-center`}>
@@ -70,21 +78,9 @@ export function Marquee({ text = "Let's build something big", href = "/contact" 
   );
 }
 export function CTA({ title = "Ready to dominate your market?", sub = "Join the agency that builds its own empires. Talk to us on WhatsApp, Telegram or call directly." }: { title?: string; sub?: string }) {
+  const doc = currentPage() ? pageDoc(currentPage()) : null; const c = doc?.find(s => s.type === "pageCta");
   return (<>
-    <Marquee />
-    <section className="px-5 sm:px-8 py-24">
-      <div className="reveal relative mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-brand via-navy-800 to-navy-900 p-8 sm:p-16 border border-sky-brand/30">
-        <div className="absolute inset-0 grid-bg opacity-60" />
-        <div className="relative grid lg:grid-cols-[1.4fr_1fr] gap-10 items-center">
-          <div><h2 data-split="scroll" className="font-display text-3xl sm:text-5xl font-extrabold text-white leading-tight">{T(title)}</h2><p className="mt-5 text-slate-200 text-lg">{T(sub)}</p></div>
-          <div className="grid gap-3">
-            <a href={CONTACT.whatsapp} target="_blank" rel="noopener" className="rounded-2xl bg-[#178a3e] px-6 py-4 font-semibold text-white flex justify-between">WhatsApp <span aria-hidden>→</span></a>
-            <a href={CONTACT.telegram} target="_blank" rel="noopener" className="rounded-2xl bg-[#1b6fa0] px-6 py-4 font-semibold text-white flex justify-between">Telegram @stagprime <span aria-hidden>→</span></a>
-            <a href={CONTACT.tel} className="rounded-2xl bg-white px-6 py-4 font-semibold text-navy-900 flex justify-between"><span>{T("Call")} <span dir="ltr">{CONTACT.phone}</span></span> <span aria-hidden>→</span></a>
-            <a href={L("/contact")} className="text-center text-sm text-slate-200 hover:text-white">{T("or send a project brief →")}</a>
-          </div>
-        </div>
-      </div>
-    </section>
+    {doc && <Blocks sections={doc} filter={s => s.settings?.position === "end"} />}
+    {c && !c.visible ? null : <CtaCard title={c ? txt(c, "title", title) : T(title)} sub={c ? txt(c, "sub", sub) : T(sub)} marquee />}
   </>);
 }

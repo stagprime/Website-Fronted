@@ -1,15 +1,15 @@
+import { S } from "@/lib/site";
 import { useParamsLoc, L, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import Icon from "@/components/Icon";
-import { team } from "@/content/team";
 import { founderLd } from "@/lib/people";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/team", "Our Team — The Stag Squad", "Meet the Stag Prime team: leadership, software & SaaS engineers, creative designers, marketers and support."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { team } = S();  return await seoMeta("/team", "Our Team — The Stag Squad", "Meet the Stag Prime team: leadership, software & SaaS engineers, creative designers, marketers and support."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { team } = S(); 
   const groups = [...new Set(team.map(m => m.group))];
   return (<>
-    <JsonLd data={breadcrumb([["Team", "/team"]])} /><JsonLd data={founderLd} />
+    <JsonLd data={breadcrumb([["Team", "/team"]])} /><JsonLd data={founderLd()} />
     <PageHero img={ai("manifesto-studio")} kicker="01001100 :: The Stag Squad" title={<>{T("Architects · Developers ·")} <span className="grad-text">{T("Marketers · Visionaries")}</span></>} crumbs={[["Team", "/team"]]} />
     <section className={`${wrap} pb-24 space-y-14`}>{groups.map((g, gi) => (
       <div key={g}><p className="font-mono text-sm text-sky-brand">[{String(gi + 1).padStart(2, "0")}] {T(g).toUpperCase()}</p>

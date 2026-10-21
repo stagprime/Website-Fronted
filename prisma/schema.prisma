@@ -37,6 +37,11 @@ model User {
   image         String?
   role          Role      @default(customer)
   locale        String    @default("en")
+  totpSecret    String?
+  totpEnabled   Boolean   @default(false)
+  disabled      Boolean   @default(false)
+  notes         String?   @db.Text
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
@@ -90,6 +95,12 @@ model Order {
   stripePaymentId String?
   dueAt           DateTime?
   requirements    Json?
+  progress        Int         @default(0)
+  assigneeId      String?
+  deliveredAt     DateTime?
+  refundedAmount  Int         @default(0)
+  locale          String      @default("en")
+  couponCode      String?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   user            User?       @relation(fields: [userId], references: [id])
@@ -103,6 +114,9 @@ model OrderEvent {
   orderId   String
   status    OrderStatus
   note      String?
+  kind      String      @default("status") // status | note | milestone | delivery | refund | system
+  internal  Boolean     @default(false)
+  actorId   String?
   createdAt DateTime    @default(now())
   order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
@@ -213,4 +227,131 @@ model BlogPost {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   @@unique([slug, locale])
+}
+
+// ======================= CMS / admin (JSON payloads stored as text for Postgres + SQLite portability) =======================
+model Page {
+  id        String   @id @default(cuid())
+  key       String   @unique            // home | /about | /privacy | custom slug (route without locale)
+  title     String
+  kind      String   @default("page")   // page | legal | custom
+  status    String   @default("published") // draft | published
+  sections  String   @db.Text           // JSON: Section[] (see lib/cms/blocks.ts)
+  draft     String?  @db.Text           // JSON: unpublished Section[] for preview
+  updatedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model UiString {
+  key       String
+  locale    String
+  value     String   @db.Text
+  status    String   @default("reviewed") // reviewed | ai_draft
+  updatedAt DateTime @updatedAt
+  @@id([key, locale])
+}
+model Media {
+  id        String   @id @default(cuid())
+  path      String   @unique            // storage key, served at /media/<path>
+  name      String
+  mime      String
+  size      Int
+  width     Int?
+  height    Int?
+  alt       String?  @db.Text           // JSON {locale: alt}
+  folder    String   @default("/")
+  private   Boolean  @default(false)
+  uploadedBy String?
+  createdAt DateTime @default(now())
+}
+model Coupon {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  kind           String    @default("percent") // percent | fixed
+  value          Int                           // percent 1-100 or cents
+  appliesTo      String    @default("*")       // * or comma list of catalog ids / prefixes (gig:, product:)
+  maxRedemptions Int?
+  redeemed       Int       @default(0)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  active         Boolean   @default(true)
+  stripeCouponId String?
+  createdAt      DateTime  @default(now())
+}
+model Form {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String
+  fields    String   @db.Text           // JSON FormField[]
+  settings  String   @db.Text           // JSON {recipients, successMsg{locale}, submitLabel{locale}}
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  submissions FormSubmission[]
+}
+model FormSubmission {
+  id        String   @id @default(cuid())
+  formId    String?
+  formKey   String
+  data      String   @db.Text
+  locale    String   @default("en")
+  status    String   @default("new") // new | read | archived
+  ip        String?
+  createdAt DateTime @default(now())
+  form      Form?    @relation(fields: [formId], references: [id], onDelete: SetNull)
+  @@index([formKey, createdAt])
+}
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  key       String
+  locale    String   @default("en")
+  subject   String
+  body      String   @db.Text
+  enabled   Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  @@unique([key, locale])
+}
+model KnowledgeDoc {
+  id        String   @id @default(cuid())
+  title     String
+  locale    String   @default("en")
+  body      String   @db.Text
+  enabled   Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+model NotFoundLog {
+  path     String   @id
+  hits     Int      @default(1)
+  referrer String?
+  lastSeen DateTime @updatedAt
+}
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     String?
+  action    String
+  entity    String
+  entityId  String?
+  diff      String?  @db.Text
+  ip        String?
+  createdAt DateTime @default(now())
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+model Revision {
+  id        String   @id @default(cuid())
+  entity    String
+  entityId  String
+  data      String   @db.Text
+  actor     String?
+  createdAt DateTime @default(now())
+  @@index([entity, entityId, createdAt])
+}
+model Backup {
+  id        String   @id @default(cuid())
+  file      String
+  size      Int
+  kind      String   @default("content")
+  actor     String?
+  createdAt DateTime @default(now())
 }

@@ -1,11 +1,12 @@
 import Image from "next/image";
 import { BuyButton } from "./Buy";
 import { L, T, getLoc } from "@/lib/loc";
-import { products, storeCats, type Product, services } from "@/content/site";
+import type { Product } from "@/content/site";
+import { S } from "@/lib/site";
 import { MerchGrid } from "./Galleries";
 import Icon from "./Icon";
 export function ProductCard({ p }: { p: Product }) {
-  const l = getLoc(); const cat = storeCats.find(c => c.slug === p.cat);
+  const l = getLoc(); const { storeCats } = S(); const cat = storeCats.find(c => c.slug === p.cat);
   const detail = p.slug === "stag-sentinel" ? "/stag-sentinel" : null;
   return (
     <article id={p.slug} className="reveal glass glow-card rounded-3xl p-6 flex flex-col scroll-mt-28">
@@ -24,10 +25,11 @@ export function ProductCard({ p }: { p: Product }) {
 }
 export function CatNav({ active }: { active?: string }) {
   const chip = (href: string, label: string, on: boolean, color = "#48BDED") => <a key={href} href={L(href)} aria-current={on ? "page" : undefined} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${on ? "text-navy-950" : "border-white/15 text-slate-200 hover:text-white"}`} style={on ? { background: color, borderColor: color } : undefined}>{label}</a>;
+  const { storeCats } = S();
   return <nav aria-label={T("Store categories")} className="flex flex-wrap gap-2">{chip("/store", T("All products"), !active)}{storeCats.map(c => chip(`/store/${c.slug}`, T(c.t), active === c.slug, c.color))}</nav>;
 }
 export function CatSection({ slug, heading = true }: { slug: string; heading?: boolean }) {
-  const c = storeCats.find(x => x.slug === slug)!; const items = products.filter(p => p.cat === slug); const svc = services.find(s => s.slug === c.svc);
+  const { storeCats, products, services } = S(); const c = storeCats.find(x => x.slug === slug); if (!c) return null; const items = products.filter(p => p.cat === slug); const svc = services.find(s => s.slug === c.svc);
   return (
     <section aria-labelledby={`cat-${slug}`} className="mt-14">
       {heading && <div className="flex flex-wrap items-end justify-between gap-4"><div><h2 id={`cat-${slug}`} className="font-display text-2xl font-bold text-white"><a href={L(`/store/${slug}`)} className="hover:text-sky-brand">{T(c.t)}</a></h2><p className="mt-1 text-sm text-slate-300">{T(c.d)}</p></div>
@@ -41,7 +43,7 @@ export function CatSection({ slug, heading = true }: { slug: string; heading?: b
 }
 /** Used on service pages: "Our products in this category". */
 export function ServiceProducts({ svc }: { svc: string }) {
-  const c = storeCats.find(x => x.svc === svc); if (!c) return null; const items = products.filter(p => p.cat === c.slug);
+  const { storeCats, products } = S(); const c = storeCats.find(x => x.svc === svc); if (!c) return null; const items = products.filter(p => p.cat === c.slug);
   return (
     <section className="relative mx-auto max-w-7xl px-5 sm:px-8 py-16">
       <p className="font-display text-[11px] tracking-[.3em] uppercase mb-4 text-sky-brand">{T("Our products in this category")}</p>

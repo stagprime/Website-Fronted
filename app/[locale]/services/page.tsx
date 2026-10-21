@@ -1,11 +1,11 @@
+import { S } from "@/lib/site";
 import { useParamsLoc, L, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import Icon from "@/components/Icon";
-import { services, process } from "@/content/site";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/services", "Services — Marketing, Development, AI, Amazon & SaaS", "Explore Stag Prime's complete growth stack: digital marketing, web & app development, Amazon & YouTube automation, AI video & animation, writing & consulting, and SaaS."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { services, process } = S();  return await seoMeta("/services", "Services — Marketing, Development, AI, Amazon & SaaS", "Explore Stag Prime's complete growth stack: digital marketing, web & app development, Amazon & YouTube automation, AI video & animation, writing & consulting, and SaaS."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { services, process } = S(); 
   return (<>
     <JsonLd data={breadcrumb([["Services", "/services"]])} />
     <PageHero img={ai("hero-collage")} kicker="Elite Digital Solutions" title={<>{T("From strategy to execution —")} <span className="grad-text">{T("we handle everything.")}</span></>} sub="Six service areas, one in-house team. Pick an area to see what's included and starting prices." crumbs={[["Services", "/services"]]} />

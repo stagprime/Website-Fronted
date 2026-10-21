@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import type { NavGroup } from "@/lib/nav";
 import { usePathname } from "next/navigation";
-import { CONTACT } from "@/lib/i18n";
 import Icon from "./Icon";
 
 type G = NavGroup & { key: string };
-export default function Header({ nav, ui, locale, names }: { nav: G[]; ui: Record<string, string>; locale: string; names: Record<string, string> }) {
+export type HeaderBrand = { emblem: string; contact: { whatsapp: string; telegram: string; tel: string; phone: string; telegramHandle: string } };
+export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui: Record<string, string>; locale: string; names: Record<string, string>; brand: HeaderBrand }) {
+  const CONTACT = brand.contact;
   const L = (h: string) => (/^([a-z]+:|\/[a-z]{2}(\/|$))/.test(h) ? h : `/${locale}${h === "/" ? "" : h}`);
   const path = usePathname() || `/${locale}`;
   const [lang, setLang] = useState(false);
@@ -25,7 +26,7 @@ export default function Header({ nav, ui, locale, names }: { nav: G[]; ui: Recor
       <div className="mx-auto max-w-7xl px-3 sm:px-8 mt-3">
         <nav aria-label={ui["Main"]} className={`rounded-2xl flex items-center justify-between px-3 sm:px-4 py-2.5 transition ${scrolled || open ? "glass shadow-2xl shadow-black/40" : "border border-transparent"}`}>
           <a href={L("/")} className="flex items-center gap-2.5" aria-label={ui["Stag Prime home"]}>
-            <img src="/emblem.svg" alt="" width={46} height={56} className="h-12 w-auto sm:h-14 drop-shadow-[0_0_12px_rgba(72,189,237,.35)]" />
+            <img src={brand.emblem} alt="" width={46} height={56} className="h-12 w-auto sm:h-14 drop-shadow-[0_0_12px_rgba(72,189,237,.35)]" />
             <span className="font-display font-extrabold tracking-wide text-white leading-none text-lg sm:text-xl">Stag <span className="grad-text">PRIME</span><span className="block text-[8px] sm:text-[9px] font-medium tracking-[.42em] text-slate-400 mt-1.5">DIGITAL AGENCY</span></span>
           </a>
           <ul className="hidden lg:flex items-center gap-1 text-sm">
@@ -80,7 +81,7 @@ export default function Header({ nav, ui, locale, names }: { nav: G[]; ui: Recor
               </div>
               <a href={L(g.featured?.href || g.href)} className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-brand via-[#0E3A6E] to-navy-800 p-6 flex flex-col border border-sky-brand/30">
                 <div className="absolute inset-0 grid-bg opacity-40" />
-                <img src="/emblem.svg" alt="" className="relative h-20 w-auto self-start drop-shadow-[0_0_20px_rgba(72,189,237,.5)] group-hover:scale-105 transition" />
+                <img src={brand.emblem} alt="" className="relative h-20 w-auto self-start drop-shadow-[0_0_20px_rgba(72,189,237,.5)] group-hover:scale-105 transition" />
                 <span className="relative mt-auto pt-6 text-[11px] uppercase tracking-widest text-sky-brand">{ui["Featured"]}</span>
                 <span className="relative mt-2 font-display text-lg font-bold text-white">{g.featured?.t || g.label}</span>
                 <span className="relative mt-2 text-sm text-slate-200">{g.featured?.d || ""}</span>
@@ -92,7 +93,7 @@ export default function Header({ nav, ui, locale, names }: { nav: G[]; ui: Recor
               <div className="flex items-center gap-5 text-slate-300">
                 <span className="text-slate-500">{ui["Quick chat:"]}</span>
                 <a href={CONTACT.whatsapp} target="_blank" rel="noopener" className="flex items-center gap-2 hover:text-[#20BF55]"><span className="h-2 w-2 rounded-full bg-[#178a3e]" />WhatsApp</a>
-                <a href={CONTACT.telegram} target="_blank" rel="noopener" className="flex items-center gap-2 hover:text-[#2AABEE]"><span className="h-2 w-2 rounded-full bg-[#1b6fa0]" />Telegram @stagprime</a>
+                <a href={CONTACT.telegram} target="_blank" rel="noopener" className="flex items-center gap-2 hover:text-[#2AABEE]"><span className="h-2 w-2 rounded-full bg-[#1b6fa0]" />Telegram {CONTACT.telegramHandle}</a>
                 <a href={CONTACT.tel} dir="ltr" className="hover:text-white">{CONTACT.phone}</a>
               </div>
             </div>
@@ -104,7 +105,7 @@ export default function Header({ nav, ui, locale, names }: { nav: G[]; ui: Recor
       {drawer && (
         <div className="lg:hidden fixed inset-0 z-[60] bg-navy-950 flex flex-col" role="dialog" aria-modal="true" aria-label={ui["Menu"]}>
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-            <span className="flex items-center gap-2.5"><img src="/emblem.svg" alt="" className="h-11 w-auto" /><span className="font-display font-extrabold text-white text-lg">Stag <span className="grad-text">PRIME</span></span></span>
+            <span className="flex items-center gap-2.5"><img src={brand.emblem} alt="" className="h-11 w-auto" /><span className="font-display font-extrabold text-white text-lg">Stag <span className="grad-text">PRIME</span></span></span>
             <button aria-label={ui["Close menu"]} onClick={() => setDrawer(false)} className="grid place-items-center w-11 h-11 rounded-xl glass text-white text-2xl">×</button>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4">

@@ -1,11 +1,11 @@
+import { S } from "@/lib/site";
 import { useParamsLoc, L, T, TT } from "@/lib/loc";
 import { seoMeta, breadcrumb } from "@/lib/seo";
 import { PageHero, JsonLd, Kicker, H2, wrap, Btn, CTA, TrustStrip } from "@/components/ui";
 import { ai } from "@/lib/art";
 import Icon from "@/components/Icon";
-import { pricing, products } from "@/content/site";
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); return await seoMeta("/pricing", "Pricing — Service Packages & Starting Prices", "Transparent starting prices for SEO, social media, app and web development, content writing, AI video, Amazon KDP and Merch design. Custom quotes for larger projects."); }
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params);
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { pricing, products } = S();  return await seoMeta("/pricing", "Pricing — Service Packages & Starting Prices", "Transparent starting prices for SEO, social media, app and web development, content writing, AI video, Amazon KDP and Merch design. Custom quotes for larger projects."); }
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) { await useParamsLoc(params); const { pricing, products } = S(); 
   return (<>
     <JsonLd data={breadcrumb([["Pricing", "/pricing"]])} />
     <PageHero img={ai("store-digital")} kicker="Pricing" title={<>{T("Clear starting prices.")} <span className="grad-text">{T("Custom quotes for scale.")}</span></>} sub="Every project is scoped individually — these are typical starting points. Larger or enterprise projects get a tailored proposal." crumbs={[["Pricing", "/pricing"]]} />
