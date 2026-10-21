@@ -16,8 +16,8 @@ import Motion from "@/components/Motion";
 import LangBanner from "@/components/LangBanner";
 import Consent from "@/components/Consent";
 import { consentT } from "@/lib/consentkeys";
-const display = Unbounded({ subsets: ["latin"], variable: "--font-display", weight: ["500", "700", "800"], display: "swap" });
-const body = Open_Sans({ subsets: ["latin"], variable: "--font-body", display: "optional" }); // preloaded; optional = no late re-paint of hero copy (LCP)
+const display = Unbounded({ subsets: ["latin"], preload: false, variable: "--font-display", weight: ["500", "700", "800"], display: "swap" });
+const body = Open_Sans({ subsets: ["latin"], preload: false, variable: "--font-body", display: "optional" }); // not preloaded (unused on bn/ar/hi phones); optional = no late re-paint of hero copy (LCP)
 export function generateStaticParams() { return locales.map(locale => ({ locale })); }
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params; setLoc(locale); const { brand, seoDefaults } = await primeSite(locale);

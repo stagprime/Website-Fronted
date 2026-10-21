@@ -10,8 +10,8 @@ module.exports = {
   reactStrictMode: true, output: "standalone",
   // Serve all metadata in <head> for every user agent (no streamed metadata) so every crawler/tool sees title, description, canonical.
   htmlLimitedBots: /.*/,
-  // Inline the (small, ~13 KB) Tailwind CSS into the HTML: removes the render-blocking CSS round-trips that delayed LCP on mobile.
-  experimental: { inlineCss: true }, poweredByHeader: false, trailingSlash: false, compress: true,
+  // (inlineCss tried and dropped: it put 64 KB of CSS into every HTML response twice — HTML 182 KB → 309 KB.)
+  poweredByHeader: false, trailingSlash: false, compress: true,
   images: { formats: ["image/avif", "image/webp"], minimumCacheTTL: 31536000 },
   // One indexable host: apex → www in a single 308 (Nginx does the same at the edge).
   async redirects() {
