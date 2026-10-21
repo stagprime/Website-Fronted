@@ -18,10 +18,10 @@ import Consent from "@/components/Consent";
 import { consentT } from "@/lib/consentkeys";
 const display = Unbounded({ subsets: ["latin"], variable: "--font-display", weight: ["500", "700", "800"], display: "swap" });
 const body = Open_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
-const bn = Noto_Sans_Bengali({ subsets: ["bengali"], variable: "--f-bn", weight: ["400", "700"], preload: false, display: "swap" });
+const bn = Noto_Sans_Bengali({ subsets: ["bengali"], variable: "--f-bn", weight: ["400", "700"], preload: false, display: "optional" });
 // Arabic: NOT preloaded (a 166 KB preload on every locale cost ~10 Lighthouse points) and display:optional so /ar hero text (LCP) paints at once with the system Arabic fallback; the web font is used once cached.
 const ar = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--f-ar", weight: ["400", "700"], preload: false, display: "optional", adjustFontFallback: false });
-const hi = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--f-hi", weight: ["400", "700"], preload: false, display: "swap" });
+const hi = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--f-hi", weight: ["400", "700"], preload: false, display: "optional" });
 export function generateStaticParams() { return locales.map(locale => ({ locale })); }
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params; setLoc(locale); const { brand, seoDefaults } = await primeSite(locale);
