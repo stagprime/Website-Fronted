@@ -36,7 +36,7 @@ export const PUT = route("content.edit", async ({ body: b, who, ip }) => {
   const data = { title, description, category: str(b.category, 60) || "Guides", service: str(b.service, 60) || null, keyword: str(b.keyword, 120) || null, body, image: str(b.image, 300) || null, faq: JSON.stringify(faq) as never, status, publishAt };
   const prev = await db.blogPost.findUnique({ where: { slug_locale: { slug, locale } } }); if (prev) await snapshot("blog", `${slug}:${locale}`, prev, who.email);
   const p = await db.blogPost.upsert({ where: { slug_locale: { slug, locale } }, create: { slug, locale, ...data }, update: data });
-  revalidatePath(`/${locale}/blog`); revalidatePath(`/${locale}/blog/${slug}`); revalidatePath("/sitemap.xml");
+  revalidatePath(`/${locale}/blog`); revalidatePath(`/${locale}/blog/${slug}`); revalidatePath("/sitemap.xml"); revalidatePath("/llms.txt"); revalidatePath("/llms-full.txt");
   await audit(who, prev ? "blog.update" : "blog.create", "blog", `${slug}:${locale}`, { title, status }, ip);
   const kw = (data.keyword || "").toLowerCase(); const words = body.split(/\s+/).length;
   const warnings = [title.length > 60 && "Title is over 60 characters", description.length > 155 && "Description is over 155 characters", description.length < 70 && "Description is short (<70)", !kw && "No focus keyword", kw && !title.toLowerCase().includes(kw) && "Focus keyword not in title", kw && !body.slice(0, 600).toLowerCase().includes(kw) && "Focus keyword not in the first paragraph", words < 600 && `Only ${words} words`, !/\]\(\//.test(body) && "No internal links", !data.image && "No featured image"].filter(Boolean);
@@ -46,7 +46,7 @@ export const DELETE = route("content.edit", async ({ url, who, ip }) => {
   const slug = url.searchParams.get("slug") || "", locale = url.searchParams.get("locale") || "en";
   const p = await db.blogPost.findUnique({ where: { slug_locale: { slug, locale } } }); if (!p) return fail("Not found (code-defined posts can only be overridden)", 404);
   await snapshot("blog", `${slug}:${locale}`, p, who.email); await db.blogPost.delete({ where: { id: p.id } });
-  revalidatePath(`/${locale}/blog`); revalidatePath(`/${locale}/blog/${slug}`); await audit(who, "blog.delete", "blog", `${slug}:${locale}`, null, ip); return ok();
+  revalidatePath(`/${locale}/blog`); revalidatePath(`/${locale}/blog/${slug}`); revalidatePath("/llms.txt"); revalidatePath("/llms-full.txt"); await audit(who, "blog.delete", "blog", `${slug}:${locale}`, null, ip); return ok();
 });
 /** POST {action:"translate", slug, from, to} AI draft translation (saved as draft) — off without OPENAI_API_KEY. */
 export const POST = route("content.edit", async ({ body: b, who, ip }) => {

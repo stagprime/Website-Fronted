@@ -6,6 +6,7 @@ export async function publishScheduled() {
   const due = await db.blogPost.findMany({ where: { status: "scheduled", publishAt: { lte: new Date() } }, select: { id: true, slug: true, locale: true } });
   if (!due.length) return 0;
   await db.blogPost.updateMany({ where: { id: { in: due.map(d => d.id) } }, data: { status: "published" } });
+  if (due.length) { revalidatePath("/llms.txt"); revalidatePath("/llms-full.txt"); }
   for (const d of due) { revalidatePath(`/${d.locale}/blog`); revalidatePath(`/${d.locale}/blog/${d.slug}`); }
   return due.length;
 }
