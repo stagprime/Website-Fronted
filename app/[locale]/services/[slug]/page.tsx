@@ -6,6 +6,7 @@ import { ai } from "@/lib/art";
 import { GigPackages } from "@/components/Gig";
 import { ServiceProducts } from "@/components/Store";
 import Icon from "@/components/Icon";
+import RelatedGuides from "@/components/RelatedGuides";
 import { notFound } from "next/navigation";
 import { SITE } from "@/lib/i18n";
 export async function generateStaticParams() { const { getSettings } = await import("@/lib/settings"); return (await getSettings()).services.map(s => ({ slug: s.slug })); }
@@ -35,6 +36,7 @@ export default async function Page({ params }: P) { await useParamsLoc(params); 
     <ServiceProducts svc={s.slug} />
     <section className={`${wrap} py-20`}><Kicker>{T("Process")}</Kicker><ol className="grid md:grid-cols-4 gap-5">{process.map(([h, d], i) => <li key={h} className="rounded-3xl border border-white/10 p-6"><span className="font-display" style={{ color: s.color }}>0{i + 1}</span><h3 className="mt-2 font-display font-bold text-white">{TT(h)}</h3><p className="mt-2 text-sm text-slate-400">{TT(d)}</p></li>)}</ol>
       <div className="mt-16"><Kicker>{T("Other services")}</Kicker><div className="flex flex-wrap gap-3">{others.map(o => <a key={o.slug} href={L(`/services/${o.slug}`)} className="rounded-full border border-white/10 px-5 py-2.5 text-sm text-slate-300 hover:text-white hover:border-sky-brand">{T(o.title)}</a>)}</div></div></section>
+    <RelatedGuides svc={s.slug} />
     <CTA title="Ready to grow? Let's talk." />
   </>);
 }

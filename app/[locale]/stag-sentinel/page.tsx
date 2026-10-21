@@ -7,6 +7,7 @@ import { ai } from "@/lib/art";
 import { SITE } from "@/lib/i18n";
 import { BuyButton } from "@/components/Buy";
 import { ViewContent } from "@/components/Track";
+import RelatedGuides from "@/components/RelatedGuides";
 const faq: [string, string][] = [
   ["What is Stag Prime Sentinel?", "Stag Prime Sentinel is an infrastructure monitoring platform by Stag Prime LLC. It gives approved teams one secure view of every server and every client workspace, with role-based access."],
   ["Who is Sentinel for?", "Teams that operate server fleets for several clients or brands — for example VPN businesses, hosting resellers and agencies managing client infrastructure."],
@@ -37,6 +38,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <div><Kicker>{T("Learn more")}</Kicker><H2>Read the VPN server monitoring guide.</H2><p className="mt-4 text-slate-300">{T("Metrics, alerting, access control and a rollout plan for multi-location VPN fleets.")}</p><div className="mt-6"><Btn href="/blog/vpn-server-monitoring">{T("Read the guide")} →</Btn></div></div>
       <div>{faq.map(([q, a]) => <details key={q} className="mb-3 rounded-2xl border border-white/10 p-5"><summary className="cursor-pointer font-semibold text-white">{T(q)}</summary><p className="mt-3 text-slate-300">{T(a)}</p></details>)}</div>
     </section>
+    <RelatedGuides match={/monitor|uptime|server/i} title="Server monitoring guides" />
     <CTA title="Want Sentinel for your servers?" sub="Tell us about your infrastructure and we'll set up a workspace for your team." />
   </>);
 }
