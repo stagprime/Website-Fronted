@@ -72,7 +72,7 @@ export const DEFAULTS = {
   robots: { blockAiCrawlers: false, extraDisallow: [] as string[], extraRules: "" },
   sitemap: { exclude: [] as string[], includeImages: true },
   consent: { enabled: true, version: 1, defaultAnalytics: false, defaultAds: false },
-  chat: { enabled: true, aiEnabled: true, aiModel: "", systemPrompt: "", greeting: "", hours: "Sun–Thu 10:00–19:00 (Asia/Dhaka)", showWhatsapp: true, showTelegram: true, showCall: true },
+  chat: { enabled: true, aiEnabled: true, aiModel: "", systemPrompt: "", greeting: "", hours: "Sun–Thu 10:00–19:00 (Asia/Dhaka)", showWhatsapp: true, showTelegram: true, showCall: true, canned: ["Thanks for reaching out! A team member will reply shortly.", "Could you share your email so we can send the details?", "You can see all packages and prices at /pricing."] as string[] },
   orders: { autoCompleteDays: 3, notifyEmail: "" },
   stripePrices: {} as Record<string, { product: string; price: string; amount: number; syncedAt: string }>,
   seoDefaults: { titleTemplate: "%s | Stag Prime", defaultDescription: "", indexNow: true },

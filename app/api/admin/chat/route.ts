@@ -27,6 +27,9 @@ export async function POST(req: Request) {
     if (b.email && c.email) await deliverMail(c.email, "Stag Prime replied to your chat", `${body}\n\nContinue the chat on ${process.env.NEXT_PUBLIC_SITE_URL || "https://www.stagprime.com"}`);
     return NextResponse.json({ ok: true, message: m });
   }
+  if (b.action === "suggest") { const { aiReply, aiKey } = await import("@/lib/ai"); if (!aiKey()) return NextResponse.json({ ok: false, error: "AI is off — set OPENAI_API_KEY." }, { status: 409 });
+    const hist = await db.chatMessage.findMany({ where: { conversationId: c.id, sender: { in: ["visitor", "ai", "agent"] } }, orderBy: { createdAt: "asc" }, take: 30 });
+    const text = await aiReply(hist, c.locale); return NextResponse.json({ ok: !!text, suggestion: text, error: text ? undefined : "No suggestion (AI switched off in Chat settings?)" }); }
   if (b.action === "assign") { await db.chatConversation.update({ where: { id: c.id }, data: { assigneeId: b.assigneeId ? String(b.assigneeId).slice(0, 40) : null } }); await audit(s, "chat.assign", "chat", c.id, b.assigneeId); return NextResponse.json({ ok: true }); }
   if (b.action === "tags") { const tags = String(b.tags || "").split(",").map((x: string) => x.trim().toLowerCase()).filter(Boolean).slice(0, 10).join(","); await db.chatConversation.update({ where: { id: c.id }, data: { tags: tags || null } }); return NextResponse.json({ ok: true, tags }); }
   if (b.action === "note") { const body = String(b.body || "").trim().slice(0, 4000); if (!body) return NextResponse.json({ ok: false, error: "Empty" }, { status: 422 }); await db.chatMessage.create({ data: { conversationId: c.id, sender: "note", body: `${s.email}: ${body}` } }); return NextResponse.json({ ok: true }); }

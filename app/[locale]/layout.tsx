@@ -1,6 +1,6 @@
 import "../globals.css";
 import type { Metadata } from "next";
-import { Unbounded, Open_Sans, Noto_Sans_Bengali, Noto_Sans_Arabic, Noto_Sans_Devanagari } from "next/font/google";
+import { Unbounded, Open_Sans } from "next/font/google";
 import { notFound } from "next/navigation";
 import { locales, rtlLocales, SITE, localeNames, ogLocale } from "@/lib/i18n";
 import { setLoc, T, L } from "@/lib/loc";
@@ -18,10 +18,6 @@ import Consent from "@/components/Consent";
 import { consentT } from "@/lib/consentkeys";
 const display = Unbounded({ subsets: ["latin"], variable: "--font-display", weight: ["500", "700", "800"], display: "swap" });
 const body = Open_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
-const bn = Noto_Sans_Bengali({ subsets: ["bengali"], variable: "--f-bn", weight: ["400", "700"], preload: false, display: "optional" });
-// Arabic: NOT preloaded (a 166 KB preload on every locale cost ~10 Lighthouse points) and display:optional so /ar hero text (LCP) paints at once with the system Arabic fallback; the web font is used once cached.
-const ar = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--f-ar", weight: ["400", "700"], preload: false, display: "optional", adjustFontFallback: false });
-const hi = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--f-hi", weight: ["400", "700"], preload: false, display: "optional" });
 export function generateStaticParams() { return locales.map(locale => ({ locale })); }
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params; setLoc(locale); const { brand, seoDefaults } = await primeSite(locale);
@@ -61,7 +57,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const banner = Object.fromEntries(locales.map(l => [l, l]));
   const css = themeCss(site.theme), fonts = googleFontsHref(site.theme), cfg = trackingConfig(site.tracking);
   return (
-    <html lang={locale} dir={rtlLocales.includes(locale) ? "rtl" : "ltr"} className={`${display.variable} ${body.variable} ${bn.variable} ${ar.variable} ${hi.variable}`} style={SCRIPT[locale] ? { ["--font-script" as string]: SCRIPT[locale] } : undefined}>
+    <html lang={locale} dir={rtlLocales.includes(locale) ? "rtl" : "ltr"} className={`${display.variable} ${body.variable}`} style={SCRIPT[locale] ? { ["--font-script" as string]: SCRIPT[locale] } : undefined}>
       <head>{fonts && <link rel="stylesheet" href={fonts} />}<style dangerouslySetInnerHTML={{ __html: css }} /></head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd()) }} />
@@ -85,5 +81,11 @@ const Q: Record<string, [string, string, string]> = {
   fr: ["Afficher ce site en français ?", "Changer", "Non merci"], de: ["Diese Website auf Deutsch ansehen?", "Wechseln", "Nein danke"],
   hi: ["क्या आप यह साइट हिन्दी में देखना चाहेंगे?", "बदलें", "नहीं, धन्यवाद"],
 };
-const SCRIPT: Record<string, string> = { ar: "var(--f-ar)", bn: "var(--f-bn)", hi: "var(--f-hi)" };
+// Bengali / Arabic / Hindi use the device's own script fonts (Noto ships on Android/ChromeOS; Windows & Apple have native faces).
+// Downloading 110–170 KB web fonts for these scripts pushed mobile LCP past 4 s; system faces render instantly.
+const SCRIPT: Record<string, string> = {
+  ar: '"Noto Sans Arabic","Segoe UI","Geeza Pro",Tahoma,sans-serif',
+  bn: '"Noto Sans Bengali","Nirmala UI","Bangla Sangam MN",Vrinda,sans-serif',
+  hi: '"Noto Sans Devanagari","Nirmala UI","Kohinoor Devanagari",Mangal,sans-serif',
+};
 const tq = (l: string) => Q[l][0], ty = (l: string) => Q[l][1], tn = (l: string) => Q[l][2];

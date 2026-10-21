@@ -42,7 +42,8 @@ export function Button({ children, kind = "primary", size = "md", className, ...
     kind === "subtle" && "text-slate-300 hover:bg-white/5 hover:text-white",
     kind === "danger" && "border border-red-400/40 text-red-200 hover:bg-red-500/15", className)}>{children}</button>;
 }
-export function Field({ label, help, children, className }: { label: string; help?: string; children: React.ReactNode; className?: string }) {
+export function Field({ label, help, children, className, group }: { label: string; help?: string; children: React.ReactNode; className?: string; group?: boolean }) {
+  if (group) return <div role="group" aria-label={label} className={cx("block", className)}><span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</span>{children}{help && <span className="mt-1 block text-xs text-slate-500">{help}</span>}</div>;
   return <label className={cx("block", className)}><span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</span>{children}{help && <span className="mt-1 block text-xs text-slate-500">{help}</span>}</label>;
 }
 export const Input = (p: React.InputHTMLAttributes<HTMLInputElement>) => <input {...p} className={cx(inputCls, p.className)} />;

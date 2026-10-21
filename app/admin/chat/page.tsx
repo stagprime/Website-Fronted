@@ -1,2 +1,11 @@
 import Inbox from "./Inbox";
-export default function ChatAdmin() { return <><h1 className="text-2xl font-bold text-white mb-6">Live chat inbox</h1><Inbox /></>; }
+import { db } from "@/lib/db";
+import { staff } from "@/lib/rbac";
+import { getSettings } from "@/lib/settings";
+import { aiKey } from "@/lib/ai";
+export const metadata = { title: "Live chat inbox" };
+export default async function ChatAdmin() {
+  const who = await staff(); const s = await getSettings();
+  const team = await db.user.findMany({ where: { role: { in: ["owner", "admin", "editor", "support", "staff"] as never[] }, disabled: false }, select: { id: true, name: true, email: true } });
+  return <><h1 className="mb-4 font-display text-2xl font-bold text-white">Live chat inbox</h1><Inbox me={who?.id || ""} team={team.map(t => ({ id: t.id, label: t.name || t.email }))} canned={s.chat.canned || []} ai={aiKey()} /></>;
+}

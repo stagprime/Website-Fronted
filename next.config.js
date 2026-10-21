@@ -9,7 +9,9 @@ const security = [
 module.exports = {
   reactStrictMode: true, output: "standalone",
   // Serve all metadata in <head> for every user agent (no streamed metadata) so every crawler/tool sees title, description, canonical.
-  htmlLimitedBots: /.*/, poweredByHeader: false, trailingSlash: false, compress: true,
+  htmlLimitedBots: /.*/,
+  // Inline the (small, ~13 KB) Tailwind CSS into the HTML: removes the render-blocking CSS round-trips that delayed LCP on mobile.
+  experimental: { inlineCss: true }, poweredByHeader: false, trailingSlash: false, compress: true,
   images: { formats: ["image/avif", "image/webp"], minimumCacheTTL: 31536000 },
   async headers() {
     return [

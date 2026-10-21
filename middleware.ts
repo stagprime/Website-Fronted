@@ -9,7 +9,9 @@ function accept(req: NextRequest) {
 }
 const geo = (req: NextRequest) => { const c = (req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase(); return geoLocale[c]; };
 export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl; const bot = BOT.test(req.headers.get("user-agent") || "");
+  const { pathname } = req.nextUrl;
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) { const h = new Headers(req.headers); h.set("x-sp-path", pathname); return NextResponse.next({ request: { headers: h } }); }
+  const bot = BOT.test(req.headers.get("user-agent") || "");
   const seg = pathname.split("/")[1];
   // Redirect manager (Admin → SEO → Redirects): 301/302/307/308 redirect, 410 Gone with a real 410 status.
   const r = await findRedirect(pathname, locales);
@@ -30,4 +32,4 @@ export async function middleware(req: NextRequest) {
   const g = geo(req); if (!c && g && g !== locale) res.cookies.set("sp_suggest", g, { path: "/", maxAge: 86400, sameSite: "lax" });
   return res;
 }
-export const config = { runtime: "nodejs", matcher: ["/((?!_next|api|admin|img|rss.xml|llms.txt|llms-full.txt|sitemap|sitemap.xml|robots.txt|.*\\..*).*)"] };
+export const config = { runtime: "nodejs", matcher: ["/((?!_next|api|img|rss.xml|llms.txt|llms-full.txt|sitemap|sitemap.xml|robots.txt|.*\\..*).*)"] };
