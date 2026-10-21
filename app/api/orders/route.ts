@@ -1,5 +1,5 @@
+import { putFile, ordersDir } from "@/lib/files";
 import { NextResponse } from "next/server";
-import fs from "fs/promises"; import path from "path";
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { sameOrigin } from "@/lib/guard";
@@ -21,8 +21,7 @@ export async function POST(req: Request) {
   if (f && typeof f !== "string" && f.size) {
     if (f.size > 10 * 1024 * 1024) return NextResponse.json({ ok: false, error: "Files must be under 10 MB." }, { status: 422 });
     if (!/\.(pdf|docx?|xlsx?|png|jpe?g|webp|zip|txt|csv|mp4|mov|ai|psd|fig)$/i.test(f.name)) return NextResponse.json({ ok: false, error: "File type not allowed." }, { status: 422 });
-    const dir = path.join(process.env.UPLOADS_DIR || path.join(process.cwd(), "data", "orders"), o.id); await fs.mkdir(dir, { recursive: true });
-    const name = `${Date.now()}-${f.name.replace(/[^\w.-]/g, "_")}`; await fs.writeFile(path.join(dir, name), Buffer.from(await f.arrayBuffer())); file = `${o.id}/${name}`;
+    const name = `${Date.now()}-${f.name.replace(/[^\w.-]/g, "_")}`; await putFile("orders", ordersDir(), `${o.id}/${name}`, Buffer.from(await f.arrayBuffer())); file = `${o.id}/${name}`;
   }
   if (action === "requirements") {
     const req: Record<string, string> = {}; fd.forEach((v, k) => { if (typeof v === "string" && k.startsWith("q_")) req[k.slice(2)] = v.slice(0, 3000); });

@@ -1,6 +1,6 @@
+import { putFile, ordersDir } from "@/lib/files";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import fs from "fs/promises"; import path from "path";
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { limit } from "@/lib/ratelimit";
@@ -60,8 +60,7 @@ export async function POST(req: Request) {
     if (f) {
       if (f.size > 8 * 1024 * 1024) return E("Files must be under 8 MB.");
       if (!/\.(pdf|docx?|png|jpe?g|webp|zip|txt)$/i.test(f.name)) return E("File type not allowed.");
-      const dir = path.join(process.env.UPLOADS_DIR || path.join(process.cwd(), "data", "orders"), "chat", c.id); await fs.mkdir(dir, { recursive: true });
-      const fn = `${Date.now()}-${f.name.replace(/[^\w.-]/g, "_")}`; await fs.writeFile(path.join(dir, fn), Buffer.from(await f.arrayBuffer())); saved = `chat/${c.id}/${fn}`;
+      const fn = `${Date.now()}-${f.name.replace(/[^\w.-]/g, "_")}`; await putFile("orders", ordersDir(), `chat/${c.id}/${fn}`, Buffer.from(await f.arrayBuffer())); saved = `chat/${c.id}/${fn}`;
     }
     if (!body && !saved) return E("Write a message first.");
     const m = await addMessage(c.id, "visitor", body || f!.name, saved);

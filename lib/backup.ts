@@ -1,3 +1,4 @@
+import { dataRoot } from "@/lib/files";
 /** Content backups: JSON export of every CMS table (no users, orders or secrets). Stored in BACKUP_DIR (default data/backups). */
 import fs from "fs/promises"; import path from "path";
 import { db } from "./db";
@@ -5,7 +6,7 @@ export const BACKUP_TABLES = ["setting", "page", "uiString", "redirect", "seoRec
 type T = (typeof BACKUP_TABLES)[number];
 type D = { findMany: () => Promise<unknown[]>; deleteMany: (a?: unknown) => Promise<unknown>; createMany: (a: { data: unknown[] }) => Promise<unknown> };
 const m = (t: T) => (db as unknown as Record<string, D>)[t];
-export const backupDir = () => process.env.BACKUP_DIR || path.join(process.cwd(), "data", "backups");
+export const backupDir = () => process.env.BACKUP_DIR || path.join(dataRoot(), "backups");
 export async function makeBackup(actor?: string, kind = "content") {
   const data: Record<string, unknown[]> = {}; for (const t of BACKUP_TABLES) data[t] = await m(t).findMany();
   const json = JSON.stringify({ version: 1, createdAt: new Date().toISOString(), tables: data });

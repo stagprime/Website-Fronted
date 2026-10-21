@@ -1,4 +1,4 @@
-import fs from "fs/promises"; import path from "path";
+import { putFile, ordersDir } from "@/lib/files";
 import { db } from "@/lib/db";
 import { route, ok, fail, str, need } from "@/lib/api";
 import { can } from "@/lib/rbac";
@@ -63,12 +63,12 @@ export const POST = route("orders.update", async ({ req, who, ip, body }) => {
   }
   if (!can(who.role, "orders.update")) return fail("Forbidden", 403);
   const fd = await req.formData(); const id = str(fd.get("id"), 40); const o = await db.order.findUnique({ where: { id } }); if (!o) return fail("Order not found", 404);
-  const base = process.env.UPLOADS_DIR || path.join(process.cwd(), "data", "orders"); const dir = path.join(base, o.id); await fs.mkdir(dir, { recursive: true });
+  
   const names: string[] = [];
   for (const f of fd.getAll("file")) { if (typeof f === "string" || !f.size) continue;
     if (f.size > 200 * 1024 * 1024) return fail(`${f.name}: deliveries must be under 200 MB.`);
     if (/\.(exe|bat|cmd|sh|msi|js|html?)$/i.test(f.name)) return fail(`${f.name}: file type not allowed.`);
-    const name = `${Date.now()}-${f.name.replace(/[^\w.-]/g, "_")}`; await fs.writeFile(path.join(dir, name), Buffer.from(await f.arrayBuffer()));
+    const name = `${Date.now()}-${f.name.replace(/[^\w.-]/g, "_")}`; await putFile("orders", ordersDir(), `${o.id}/${name}`, Buffer.from(await f.arrayBuffer()));
     await db.orderFile.create({ data: { orderId: id, name: f.name.slice(0, 200), path: `${o.id}/${name}`, kind: "delivery" } }); names.push(f.name); }
   need(names.length, "Attach at least one file");
   const note = str(fd.get("note"), 4000);

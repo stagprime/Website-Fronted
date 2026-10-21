@@ -2,8 +2,8 @@
  * File storage abstraction (local disk driver). Public media live under <UPLOADS_DIR>/media and are served by /media/<key>;
  * private files (deliveries, downloads) are only served through authorised routes. Swap `driver` for S3/OCI later without schema changes.
  */
-import fs from "fs/promises"; import path from "path"; import crypto from "crypto";
-const root = () => process.env.UPLOADS_DIR || path.join(process.cwd(), "data", "uploads");
+import path from "path"; import crypto from "crypto"; import { dataRoot, putFile, getFile, delFile } from "@/lib/files";
+const root = () => process.env.UPLOADS_DIR || path.join(dataRoot(), "uploads");
 export const mediaDir = () => path.join(root(), "media");
 export const ALLOWED = /\.(png|jpe?g|webp|gif|svg|avif|ico|pdf|zip|mp4|webm|woff2?|ttf|otf|txt|csv|docx?|xlsx?)$/i;
 export const MAX_BYTES = 25 * 1024 * 1024;
@@ -11,10 +11,10 @@ const safe = (n: string) => n.normalize("NFKD").replace(/[^\w.-]+/g, "-").replac
 export const driver = {
   async put(name: string, buf: Buffer, folder = "") {
     const key = `${folder ? folder.replace(/[^\w/-]/g, "").replace(/^\/+|\/+$/g, "") + "/" : ""}${new Date().toISOString().slice(0, 7)}/${crypto.randomBytes(4).toString("hex")}-${safe(name)}`;
-    const p = path.join(mediaDir(), key); await fs.mkdir(path.dirname(p), { recursive: true }); await fs.writeFile(p, buf); return key;
+    await putFile("media", mediaDir(), key, buf); return key;
   },
-  async get(key: string) { const p = resolve(key); return p ? fs.readFile(p) : null; },
-  async del(key: string) { const p = resolve(key); if (p) await fs.rm(p, { force: true }); },
+  async get(key: string) { return resolve(key) ? getFile("media", mediaDir(), key) : null; },
+  async del(key: string) { if (resolve(key)) await delFile("media", mediaDir(), key); },
 };
 /** Resolve a storage key safely inside the media dir (no path traversal). */
 export function resolve(key: string) { const base = mediaDir(); const p = path.resolve(base, key); return p.startsWith(base + path.sep) ? p : null; }
