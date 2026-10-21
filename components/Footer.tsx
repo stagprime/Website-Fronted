@@ -23,7 +23,7 @@ export default function Footer() {
         ))}
       </div>
       <div className="mx-auto max-w-7xl px-5 sm:px-8 pb-8 flex flex-wrap gap-2">
-        {footer.showSocials && [...socials, ...profiles.map(p => [p.n, p.u])].map(([n, u]) => <a key={n} href={u} target="_blank" rel="noopener" className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400 hover:text-white hover:border-sky-brand">{TT(n)}</a>)}
+        {footer.showSocials && [...socials, ...profiles.map(p => [p.n, p.u])].map(([n, u], si) => <a key={`${si}-${n}`} href={u} target="_blank" rel="noopener" className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-400 hover:text-white hover:border-sky-brand">{TT(n)}</a>)}
       </div>
       <div className="mx-auto max-w-7xl px-5 sm:px-8 flex flex-wrap justify-between gap-3 text-xs text-slate-400 border-t border-white/5 pt-6">
         <span>{T("© 2026 Stag Prime LLC. All Rights Reserved.").replace("2026", String(new Date().getFullYear())).replace("Stag Prime LLC", brand.legal)}</span><span className="flex gap-5">{footer.legal.map(x => <a key={x.href} href={L(x.href)} className="hover:text-white">{TT(x.label)}</a>)}</span>

@@ -30,8 +30,8 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
             <span className="font-display font-extrabold tracking-wide text-white leading-none text-lg sm:text-xl">Stag <span className="grad-text">PRIME</span><span className="block text-[8px] sm:text-[9px] font-medium tracking-[.42em] text-slate-400 mt-1.5">DIGITAL AGENCY</span></span>
           </a>
           <ul className="hidden lg:flex items-center gap-1 text-sm">
-            {nav.map(n => (
-              <li key={n.label} onMouseEnter={() => setOpen(n.cols ? n.label : null)}>
+            {nav.map((n, ni) => (
+              <li key={ni} onMouseEnter={() => setOpen(n.cols ? n.label : null)}>
                 {n.cols ? (
                   <button aria-expanded={open === n.label} onClick={() => setOpen(open === n.label ? null : n.label)} onFocus={() => setOpen(n.label)}
                     className={`flex items-center gap-1 rounded-full px-4 py-2 transition ${open === n.label ? "bg-white/10 text-white" : "text-slate-300 hover:text-white"}`}>
@@ -71,7 +71,7 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
                           <span className="min-w-0">
                             <span className="flex items-center gap-1 font-semibold text-white group-hover:text-[color:var(--c)] transition">{i.t}{i.ext ? " ↗" : <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition">→</span>}</span>
                             {i.d && <span className="block text-xs text-slate-400 mt-0.5">{i.d}</span>}
-                            {i.subs && <ul className="mt-2 space-y-1">{i.subs.map(x => <li key={x} className="flex gap-2 text-[12.5px] text-slate-300 group-hover:text-slate-100"><span className="mt-[7px] h-1 w-1 shrink-0 rounded-full" style={{ background: i.color }} />{x}</li>)}</ul>}
+                            {i.subs && <ul className="mt-2 space-y-1">{i.subs.map((x, xi) => <li key={xi} className="flex gap-2 text-[12.5px] text-slate-300 group-hover:text-slate-100"><span className="mt-[7px] h-1 w-1 shrink-0 rounded-full" style={{ background: i.color }} />{x}</li>)}</ul>}
                           </span>
                         </a></li>
                       ))}
@@ -109,8 +109,8 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
             <button aria-label={ui["Close menu"]} onClick={() => setDrawer(false)} className="grid place-items-center w-11 h-11 rounded-xl glass text-white text-2xl">×</button>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4">
-            {nav.map(n => (
-              <div key={n.label} className="border-b border-white/5">
+            {nav.map((n, ni) => (
+              <div key={ni} className="border-b border-white/5">
                 {n.cols ? (<>
                   <button className="w-full flex justify-between items-center py-4 font-display text-lg text-white" aria-expanded={acc === n.label} onClick={() => setAcc(acc === n.label ? null : n.label)}>
                     {n.label}<span className={`text-sky-brand transition ${acc === n.label ? "rotate-45" : ""}`}>+</span></button>
