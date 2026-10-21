@@ -18,7 +18,7 @@ const state = async () => ({ ai: await aiEnabled(), agents: agentsOnline.size > 
 export async function GET(req: Request) {
   const c = await current(); if (!c) return NextResponse.json({ ok: true, conversation: null, ...(await state()) });
   const since = new URL(req.url).searchParams.get("since");
-  const messages = await db.chatMessage.findMany({ where: { conversationId: c.id, ...(since && { createdAt: { gt: new Date(since) } }) }, orderBy: { createdAt: "asc" }, take: 200 });
+  const messages = await db.chatMessage.findMany({ where: { conversationId: c.id, sender: { not: "note" }, ...(since && { createdAt: { gt: new Date(since) } }) }, orderBy: { createdAt: "asc" }, take: 200 });
   return NextResponse.json({ ok: true, conversation: { id: c.id, status: c.status, name: c.name }, messages, ...(await state()) });
 }
 export async function POST(req: Request) {
