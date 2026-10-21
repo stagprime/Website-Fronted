@@ -46,3 +46,6 @@ body{@apply overflow-x-hidden bg-navy-950 text-slate-200 font-body antialiased}
 @media (prefers-reduced-motion:reduce){.badge-ring,.mq{animation:none!important}.tilt{transform:none}}
 /* Admin compact density toggle */
 .sp-dense main{font-size:.92rem}.sp-dense main section{padding:.9rem}
+
+/* Phones: no reveal fade on the first (above-the-fold) section — it delayed LCP. Desktop keeps the effect. */
+@media (max-width:1023px){main>section:first-of-type .reveal,main>section:first-of-type.reveal{opacity:1;transform:none;transition:none}}
