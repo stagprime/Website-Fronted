@@ -8,6 +8,12 @@ function accept(req: NextRequest) {
     .sort((a, b) => b.q - a.q).map(x => x.l).find(has);
 }
 const geo = (req: NextRequest) => { const c = (req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase(); return geoLocale[c]; };
+/** Public origin as the visitor sees it (behind Nginx/PM2 req.url is the internal localhost:3000). */
+function pub(path: string, req: NextRequest) {
+  const host = (req.headers.get("x-forwarded-host") || req.headers.get("host") || req.nextUrl.host).split(",")[0].trim();
+  const proto = (req.headers.get("x-forwarded-proto") || req.nextUrl.protocol.replace(":", "")).split(",")[0].trim();
+  return new URL(path, `${proto}://${host}`);
+}
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (pathname === "/admin" || pathname.startsWith("/admin/")) { const h = new Headers(req.headers); h.set("x-sp-path", pathname); return NextResponse.next({ request: { headers: h } }); }
@@ -17,7 +23,7 @@ export async function middleware(req: NextRequest) {
   const r = await findRedirect(pathname, locales);
   if (r) { void countHit(r.id);
     if (r.code === 410 || r.code === 451) return new NextResponse(GONE_HTML(`/${has(seg) ? seg : defaultLocale}`), { status: r.code, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex" } });
-    return NextResponse.redirect(new URL(r.to, req.url), [301, 302, 307, 308].includes(r.code) ? r.code : 301); }
+    return NextResponse.redirect(pub(r.to, req), [301, 302, 307, 308].includes(r.code) ? r.code : 301); }
   if (has(seg)) {
     // Locale already in URL: never redirect. Only set a *suggestion* cookie for the banner (humans without a saved choice).
     const res = NextResponse.next();
@@ -28,7 +34,7 @@ export async function middleware(req: NextRequest) {
   if (bot) return NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${req.nextUrl.search}`, req.url));
   const c = req.cookies.get("NEXT_LOCALE")?.value;
   const locale = (has(c) && c) || accept(req) || defaultLocale;
-  const res = NextResponse.redirect(new URL(`/${locale}${pathname === "/" ? "" : pathname}${req.nextUrl.search}`, req.url), 307);
+  const res = NextResponse.redirect(pub(`/${locale}${pathname === "/" ? "" : pathname}${req.nextUrl.search}`, req), 307);
   const g = geo(req); if (!c && g && g !== locale) res.cookies.set("sp_suggest", g, { path: "/", maxAge: 86400, sameSite: "lax" });
   return res;
 }
