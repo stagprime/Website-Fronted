@@ -1,4 +1,5 @@
 import { redirect, notFound } from "next/navigation";
+import { can } from "@/lib/rbac";
 import { useParamsLoc, L, T } from "@/lib/loc";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
@@ -11,7 +12,7 @@ export async function generateMetadata() { return { title: "Order", robots: { in
 export default async function Page({ params }: { params: Promise<{ locale: string; id: string }> }) { await useParamsLoc(params);
   const { id } = await params; const s = await auth(); if (!s?.user) redirect(L("/login"));
   const o = await db.order.findUnique({ where: { id }, include: { events: { orderBy: { createdAt: "asc" } }, files: true, messages: { orderBy: { createdAt: "asc" } } } });
-  if (!o || (o.userId !== s.user.id && o.email !== s.user.email && !["admin", "staff"].includes(s.user.role))) notFound();
+  if (!o || (o.userId !== s.user.id && o.email !== s.user.email && !can(s.user.role, "orders.view"))) notFound();
   const t = acctT(); const gig = o.item.startsWith("gig:") ? gigOf(o.item.split(":")[1]) : undefined; const idx = STEPS.indexOf(o.status as never);
   const card = "glass rounded-3xl p-6 sm:p-8";
   return (

@@ -74,14 +74,16 @@ export function ApplyForm({ areas, t }: { areas: string[]; t?: FT }) {
 }
 export function AuthForm({ t, locale = "en", google = false, initial = "login" }: { t?: FT; locale?: string; google?: boolean; initial?: "login" | "signup" | "forgot" }) {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">(initial);
-  const [st, setSt] = useState<{ s: "idle" | "busy" | "ok" | "err"; m?: string }>({ s: "idle" });
+  const [st, setSt] = useState<{ s: "idle" | "busy" | "ok" | "err"; m?: string }>({ s: "idle" }); const [otp, setOtp] = useState(false);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); const fd = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>; setSt({ s: "busy" });
     try {
       if (mode === "login") {
         const { signIn } = await import("next-auth/react");
-        const r = await signIn("credentials", { email: fd.email, password: fd.password, redirect: false });
-        if (r?.error) setSt({ s: "err", m: tf(t, r.code === "unverified" || String(r.error).includes("unverified") ? "Please verify your email first — check your inbox." : "Incorrect email or password.") });
+        const r = await signIn("credentials", { email: fd.email, password: fd.password, otp: fd.otp || "", redirect: false });
+        const code = r?.code || "";
+        if (code === "otp" || code === "otp-invalid") setOtp(true);
+        if (r?.error) setSt({ s: "err", m: tf(t, code === "unverified" ? "Please verify your email first — check your inbox." : code === "otp" ? "Enter the 6-digit code from your authenticator app." : code === "otp-invalid" ? "That code is not valid. Try the current code." : code === "disabled" ? "This account is disabled. Contact us for help." : code === "rate" ? "Too many attempts. Please wait a few minutes." : "Incorrect email or password.") });
         else { location.href = `/${locale}/account`; }
         return;
       }
@@ -102,6 +104,7 @@ export function AuthForm({ t, locale = "en", google = false, initial = "login" }
         {mode === "signup" && <div><label className={lbl} htmlFor="an">{tf(t, "Full name")}</label><input id="an" name="name" className={inp} autoComplete="name" /></div>}
         <div><label className={lbl} htmlFor="ae">{tf(t, "Email")}</label><input id="ae" name="email" type="email" required className={inp} autoComplete="email" /></div>
         {mode !== "forgot" && <div><label className={lbl} htmlFor="ap">{tf(t, "Password")}</label><input id="ap" name="password" type="password" required minLength={8} className={inp} autoComplete={mode === "login" ? "current-password" : "new-password"} /></div>}
+        {mode === "login" && otp && <div><label className={lbl} htmlFor="aotp">{tf(t, "Authenticator code")}</label><input id="aotp" name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9 ]{6,7}" required autoFocus className={inp} /></div>}
         {mode === "signup" && <div><label className={lbl} htmlFor="ac">{tf(t, "Confirm password")}</label><input id="ac" name="confirm" type="password" required minLength={8} className={inp} autoComplete="new-password" /></div>}
         {mode === "login" && <div className="flex justify-end text-sm"><button type="button" onClick={() => { setMode("forgot"); setSt({ s: "idle" }); }} className="text-sky-brand hover:text-white">{tf(t, "Forgot password?")}</button></div>}
         {mode === "signup" && <label className="flex gap-2 text-sm text-slate-300"><input type="checkbox" required className="accent-sky-500" />{tf(t, "I agree to the Terms of Service and Privacy Policy")}</label>}

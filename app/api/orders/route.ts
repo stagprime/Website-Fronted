@@ -5,14 +5,16 @@ import { auth } from "@/auth";
 import { sameOrigin } from "@/lib/guard";
 import { limit } from "@/lib/ratelimit";
 import { deliverMail } from "@/lib/mailer";
+import { can } from "@/lib/rbac";
+import { setOrderStatus, STATUSES, orderUrl } from "@/lib/orders";
+import { sendEmail } from "@/lib/email";
 export const runtime = "nodejs";
-const STAFF = ["admin", "staff"];
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return NextResponse.json({ ok: false, error: "Invalid origin" }, { status: 403 });
   const s = await auth(); if (!s?.user) return NextResponse.json({ ok: false, error: "Please log in." }, { status: 401 });
   if (!limit(`ord:${s.user.id}`, 30, 600_000)) return NextResponse.json({ ok: false, error: "Slow down a little." }, { status: 429 });
   const fd = await req.formData(); const id = String(fd.get("orderId") || ""); const action = String(fd.get("action") || "");
-  const o = await db.order.findUnique({ where: { id } }); const staff = STAFF.includes(s.user.role);
+  const o = await db.order.findUnique({ where: { id } }); const staff = can(s.user.role, "orders.update");
   if (!o || (!staff && o.userId !== s.user.id)) return NextResponse.json({ ok: false, error: "Order not found." }, { status: 404 });
   let file: string | undefined;
   const f = fd.get("file");
@@ -34,15 +36,14 @@ export async function POST(req: Request) {
     const body = String(fd.get("body") || "").trim().slice(0, 5000); if (!body && !file) return NextResponse.json({ ok: false, error: "Write a message or attach a file." }, { status: 422 });
     await db.message.create({ data: { orderId: id, userId: s.user.id, fromStaff: staff, body, file } });
     if (file) await db.orderFile.create({ data: { orderId: id, name: file.split("/").pop()!, path: file, kind: staff ? "delivery" : "attachment" } });
-    await deliverMail(staff ? o.email : process.env.MAIL_TO || "brand@stagprime.com", `New message on order: ${o.title}`, body || "(file attached)");
+    if (staff) await sendEmail("order.message", o.email, { title: o.title, body: body || "(file attached)", url: orderUrl(o) }, o.locale); else await deliverMail(process.env.MAIL_TO || "brand@stagprime.com", `New message on order: ${o.title}`, body || "(file attached)");
     return NextResponse.json({ ok: true });
   }
   if (action === "status" && staff) {
-    const st = String(fd.get("status")); if (!["pending", "in_progress", "delivered", "revision", "completed", "cancelled"].includes(st)) return NextResponse.json({ ok: false }, { status: 422 });
-    await db.order.update({ where: { id }, data: { status: st as never } }); await db.orderEvent.create({ data: { orderId: id, status: st as never, note: String(fd.get("note") || "") || null } });
-    await deliverMail(o.email, `Order update: ${o.title}`, `Your order status is now: ${st.replace("_", " ")}.`); return NextResponse.json({ ok: true });
+    const st = String(fd.get("status")) as (typeof STATUSES)[number]; if (!STATUSES.includes(st) || st === "refunded") return NextResponse.json({ ok: false }, { status: 422 });
+    await setOrderStatus(id, st, { note: String(fd.get("note") || "") || undefined, actorId: s.user.id }); return NextResponse.json({ ok: true });
   }
-  if (action === "revision" && !staff && o.status === "delivered") { await db.order.update({ where: { id }, data: { status: "revision" as never } }); await db.orderEvent.create({ data: { orderId: id, status: "revision" as never, note: String(fd.get("note") || "").slice(0, 2000) || "Revision requested." } }); return NextResponse.json({ ok: true }); }
-  if (action === "accept" && !staff && o.status === "delivered") { await db.order.update({ where: { id }, data: { status: "completed" as never } }); await db.orderEvent.create({ data: { orderId: id, status: "completed" as never, note: "Delivery accepted by client." } }); return NextResponse.json({ ok: true }); }
+  if (action === "revision" && !staff && o.status === "delivered") { await setOrderStatus(id, "revision", { note: String(fd.get("note") || "").slice(0, 2000) || "Revision requested.", actorId: s.user.id, silent: true }); await deliverMail(process.env.MAIL_TO || "brand@stagprime.com", `[order ${id}] revision requested`, String(fd.get("note") || "")); return NextResponse.json({ ok: true }); }
+  if (action === "accept" && !staff && o.status === "delivered") { await setOrderStatus(id, "completed", { note: "Delivery accepted by client.", actorId: s.user.id }); return NextResponse.json({ ok: true }); }
   return NextResponse.json({ ok: false, error: "Unknown action." }, { status: 400 });
 }

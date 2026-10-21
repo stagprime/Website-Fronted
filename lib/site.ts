@@ -24,11 +24,18 @@ export const pageDocs = unstable_cache(async () => {
   catch { return {}; }
 }, ["page-docs"], { tags: ["pages"], revalidate: 600 });
 
+/** Admin preview (Next.js draft mode, enabled by /api/admin/preview for staff): uncached docs with drafts, incl. unpublished pages. */
+async function previewDocs() {
+  try { const { draftMode } = await import("next/headers"); if (!(await draftMode()).isEnabled || !dbReady()) return null;
+    const { db } = await import("@/lib/db"); const rows = await db.page.findMany({ select: { key: true, title: true, sections: true, draft: true, status: true } });
+    return Object.fromEntries(rows.map(r => [r.key, { title: r.title, sections: r.draft || r.sections, status: r.status }]));
+  } catch { return null; }
+}
 export async function primeSite(locale: string) {
   const st = snap();
   const jobs: Promise<unknown>[] = [];
   if (!st.s) jobs.push(getSettings().then(s => { st.s = s; }).catch(() => { st.s = DEFAULTS; }));
-  if (!st.pages) jobs.push(pageDocs().then(p => { st.pages = p; }).catch(() => { st.pages = {}; }));
+  if (!st.pages) jobs.push((async () => { st.pages = (await previewDocs()) ?? await pageDocs(); })().catch(() => { st.pages = {}; }));
   for (const l of new Set(["en", locale])) if (!st.ui.has(l)) { st.ui.add(l); jobs.push(uiOverrides(l).then(m => setOverrides(l, m))); }
   await Promise.all(jobs);
   return st.s!;

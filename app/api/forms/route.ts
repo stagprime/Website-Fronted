@@ -28,6 +28,7 @@ export async function POST(req: Request) {
   for (const r of rule.req) if (!data[r]) return NextResponse.json({ ok: false, error: `Please fill in: ${r}.`, field: r }, { status: 422 });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(data.email))) return NextResponse.json({ ok: false, error: "Please enter a valid email address.", field: "email" }, { status: 422 });
   const text = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("\n");
+  try { const { db, dbReady } = await import("@/lib/db"); if (dbReady()) await db.formSubmission.create({ data: { formKey: type, data: JSON.stringify(data), locale: String(data.locale || "en").slice(0, 5), ip } }); } catch { /* inbox is best-effort; email + jsonl still record it */ }
   const r = await deliver(`[stagprime.com] ${type} — ${data.name}`, text, { type, ...data, ip }, files);
   return NextResponse.json({ ok: true, via: r.via });
 }
