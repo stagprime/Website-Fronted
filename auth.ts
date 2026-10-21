@@ -13,8 +13,10 @@ const providers = [
     credentials: { email: {}, password: {}, otp: {} },
     async authorize(c, req) {
       const email = String(c?.email || "").toLowerCase().trim(), password = String(c?.password || "");
-      const ip = (req?.headers?.get?.("x-forwarded-for") || "local").split(",")[0];
-      if (!limit(`login:${ip}:${email}`, 8, 15 * 60_000)) throw new Coded("rate");
+      // Client IP as seen by our own Nginx (X-Real-IP, or the LAST X-Forwarded-For hop); the first XFF value is client-controlled.
+      const h = req?.headers as Headers | undefined, xff = (h?.get?.("x-forwarded-for") || "").split(",").map(x => x.trim()).filter(Boolean);
+      const ip = h?.get?.("x-real-ip") || xff[xff.length - 1] || "local";
+      if (!limit(`login:${ip}:${email}`, 8, 15 * 60_000) || !limit(`login-ip:${ip}`, 30, 15 * 60_000) || !limit(`login-acct:${email}`, 20, 60 * 60_000)) throw new Coded("rate");
       if (!email || password.length < 8) return null;
       const u = await db.user.findUnique({ where: { email } });
       if (!u?.passwordHash || !(await bcrypt.compare(password, u.passwordHash))) return null;
