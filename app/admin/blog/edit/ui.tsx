@@ -6,7 +6,7 @@ import MediaPicker from "@/components/admin/MediaPicker";
 import JsonEditor from "@/components/admin/JsonEditor";
 type Post = { slug: string; locale: string; title: string; description: string; category: string; service: string | null; keyword: string | null; body: string; faq: string[][]; image: string | null; status: string; publishAt: string | null };
 const LOCS = ["en", "bn", "ar", "es", "fr", "de", "hi"];
-function md(s: string) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/^### (.*)$/gm, "<h3>$1</h3>").replace(/^## (.*)$/gm, "<h2>$1</h2>").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>').replace(/^- (.*)$/gm, "<li>$1</li>").replace(/\n{2,}/g, "<br/><br/>"); }
+function md(s: string) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;").replace(/^### (.*)$/gm, "<h3>$1</h3>").replace(/^## (.*)$/gm, "<h2>$1</h2>").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[(.+?)\]\((.+?)\)/g, (_, t: string, u: string) => /^(https?:|mailto:|\/|#)/i.test(u.trim()) ? `<a href="${u.trim().replace(/"/g, "&quot;")}">${t}</a>` : t).replace(/^- (.*)$/gm, "<li>$1</li>").replace(/\n{2,}/g, "<br/><br/>"); }
 export default function UI({ slug, locale }: { slug: string; locale: string }) {
   const [p, setP] = useState<Post | null>(null); const [src, setSrc] = useState(""); const [langs, setLangs] = useState<{ locale: string; status: string }[]>([]); const [ai, setAi] = useState(false); const [warn, setWarn] = useState<string[]>([]); const [prev, setPrev] = useState(false);
   const dirty = useDirty(p);

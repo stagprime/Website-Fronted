@@ -60,6 +60,28 @@ export function isLive(s: Section, locale: string, now = Date.now()) {
   return true;
 }
 /** Strip scripts / inline handlers from admin-provided HTML. */
+/** Allow-list HTML sanitizer for the admin "HTML" block: unknown tags dropped (text kept), script/style/etc. removed with content,
+ *  only safe attributes kept, URLs must be http(s)/relative/mailto/tel, iframes only from YouTube/Vimeo. */
+const OK_TAGS = new Set("a abbr b blockquote br caption code div em figcaption figure h2 h3 h4 h5 h6 hr i img li ol p pre s small span strong sub sup table tbody td th thead tr u ul iframe".split(" "));
+const OK_ATTR = new Set("href src alt title class width height target rel loading allow allowfullscreen frameborder colspan rowspan".split(" "));
+const IFRAME_HOST = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)\//i;
+const decode = (v: string) => v.replace(/&#x([0-9a-f]+);?/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);?/g, (_, d) => String.fromCodePoint(+d)).replace(/&colon;/gi, ":").replace(/&tab;|&newline;/gi, "");
+const safeUrl = (v: string) => { const u = decode(v).replace(/[\u0000-\u0020\u007f]+/g, ""); return /^(https?:|mailto:|tel:|\/(?!\/)|#)/i.test(u) ? u : null; };
+const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 export function cleanHtml(h: string) {
-  return h.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<(iframe|object|embed)(?![^>]*(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com))[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "").replace(/javascript:/gi, "");
+  return h.replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<(script|style|noscript|template|textarea|title|xmp|object|embed|svg|math)\b[\s\S]*?(<\/\1\s*>|$)/gi, "")
+    .replace(/<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b([^>]*)>?/g, (_, close: string, tag: string, attrs: string) => {
+      const t = tag.toLowerCase(); if (!OK_TAGS.has(t)) return "";
+      if (close) return `</${t}>`;
+      const out: string[] = [];
+      for (const m of attrs.matchAll(/([^\s"'>\/=]+)(?:\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g)) {
+        const a = m[1].toLowerCase(); if (!OK_ATTR.has(a)) continue; let v = m[3] ?? m[4] ?? m[5] ?? "";
+        if (a === "href" || a === "src") { const u = safeUrl(v); if (!u || (t === "iframe" && !IFRAME_HOST.test(u))) continue; v = u; }
+        out.push(`${a}="${esc(decode(v))}"`);
+      }
+      if (t === "iframe" && !out.some(x => x.startsWith("src="))) return "";
+      if (t === "a" && out.some(x => x === 'target="_blank"')) out.push('rel="noopener noreferrer"');
+      return `<${t}${out.length ? " " + out.join(" ") : ""}>`;
+    });
 }
