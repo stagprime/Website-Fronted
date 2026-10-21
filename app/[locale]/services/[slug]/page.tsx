@@ -15,7 +15,7 @@ export default async function Page({ params }: P) { await useParamsLoc(params); 
   const { slug } = await params; const s = services.find(x => x.slug === slug); if (!s) notFound();
   const price = pricing.find(p => p.slug === s.slug); const others = services.filter(x => x.slug !== s.slug);
   const ld = { "@context": "https://schema.org", "@type": "Service", name: s.title, serviceType: s.title, description: s.intro, provider: { "@id": `${SITE}/#org` }, areaServed: "Worldwide", url: `${SITE}/${getLoc()}/services/${s.slug}`,
-    hasOfferCatalog: { "@type": "OfferCatalog", name: s.title, itemListElement: (gigOf(s.slug)?.pkgs || []).map(p => ({ "@type": "Offer", name: p.name, price: p.price, priceCurrency: "USD", availability: "https://schema.org/InStock", itemOffered: { "@type": "Service", name: `${s.title} — ${p.name}` } })) } };
+    hasOfferCatalog: { "@type": "OfferCatalog", name: s.title, itemListElement: (gigOf(s.slug)?.pkgs || []).map(p => ({ "@type": "Offer", name: p.name, price: p.price, priceCurrency: "USD", availability: "https://schema.org/InStock", itemOffered: { "@type": "Service", name: `${s.title} — ${p.name}`, provider: { "@id": `${SITE}/#org` } } })) } };
   return (<>
     <JsonLd data={breadcrumb([["Services", "/services"], [s.title, `/services/${s.slug}`]])} /><JsonLd data={ld} />
     <PageHero img={ai(`svc-${s.slug}`)} kicker={T(s.short)} title={T(s.title)} sub={T(s.intro)} color={s.color} crumbs={[["Services", "/services"], [s.title, `/services/${s.slug}`]]}>

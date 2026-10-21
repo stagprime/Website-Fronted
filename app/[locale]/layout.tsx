@@ -61,6 +61,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <head>{fonts && <link rel="stylesheet" href={fonts} />}<style dangerouslySetInnerHTML={{ __html: css }} /></head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd()) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd(locale)) }} />
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[80] focus:bg-white focus:text-navy-900 focus:px-4 focus:py-2 focus:rounded">{ui["Skip to content"]}</a>
         <LangBanner locale={locale} names={localeNames} labels={Object.fromEntries(Object.keys(banner).map(l => [l, { q: tq(l), yes: ty(l), no: tn(l) }]))} />
         <Header nav={tNav} ui={ui} locale={locale} names={localeNames} brand={{ emblem: site.brand.emblem, contact: { whatsapp: site.contact.whatsapp, telegram: site.contact.telegram, tel: site.contact.tel, phone: site.contact.phone, telegramHandle: site.contact.telegramHandle } }} />
@@ -89,3 +90,10 @@ const SCRIPT: Record<string, string> = {
   hi: '"Noto Sans Devanagari","Nirmala UI","Kohinoor Devanagari",Mangal,sans-serif',
 };
 const tq = (l: string) => Q[l][0], ty = (l: string) => Q[l][1], tn = (l: string) => Q[l][2];
+
+/** WebSite + SearchAction (sitelinks search box) → /{locale}/search?q= */
+function websiteLd(locale: string) {
+  const { brand } = S();
+  return { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: brand.name, alternateName: "Stag Prime", url: `${SITE}/${locale}`, inLanguage: locale, publisher: { "@id": `${SITE}/#org` },
+    potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${SITE}/${locale}/search?q={search_term_string}` }, "query-input": "required name=search_term_string" } };
+}
