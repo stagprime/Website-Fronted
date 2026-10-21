@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, DataTable, PageHeader, Tabs, api, fmtDate, money } from "@/components/admin/kit";
 export type O = { id: string; email: string; title: string; item: string; kind: string; amount: number; currency: string; status: string; progress: number; dueAt: string | null; deliveredAt: string | null; createdAt: string; refundedAmount: number; couponCode: string | null };
+/** Workflow names shown to staff and customers: received → processing → delivered (DB values stay pending / in_progress). */
+export const LABEL = (s: string) => ({ pending: "received", in_progress: "processing" } as Record<string, string>)[s] || s.replace("_", " ");
 export const TONE: Record<string, "slate" | "sky" | "green" | "amber" | "red" | "purple"> = { pending: "amber", in_progress: "sky", delivered: "purple", revision: "amber", completed: "green", cancelled: "slate", refunded: "red" };
 export default function UI() {
   const [st, setSt] = useState("active"); const [d, setD] = useState<{ orders: O[]; counts: Record<string, number> } | null>(null);
@@ -16,7 +18,7 @@ export default function UI() {
       { key: "title", label: "Order", render: o => <Link href={`/admin/orders/${o.id}`} className="font-semibold text-white hover:text-sky-brand">{o.title}<span className="block text-xs font-normal text-slate-500">{o.item}</span></Link> },
       { key: "email", label: "Customer", sort: o => o.email },
       { key: "amount", label: "Amount", sort: o => o.amount, render: o => <>{money(o.amount, o.currency)}{o.refundedAmount > 0 && <span className="block text-xs text-red-300">−{money(o.refundedAmount, o.currency)}</span>}</> },
-      { key: "status", label: "Status", sort: o => o.status, render: o => <span className="flex flex-col gap-1"><Badge tone={TONE[o.status]}>{o.status.replace("_", " ")}</Badge>{late(o) && <Badge tone="red">late</Badge>}</span> },
+      { key: "status", label: "Status", sort: o => o.status, render: o => <span className="flex flex-col gap-1"><Badge tone={TONE[o.status]}>{LABEL(o.status)}</Badge>{late(o) && <Badge tone="red">late</Badge>}</span> },
       { key: "progress", label: "Progress", sort: o => o.progress, render: o => <div className="h-1.5 w-24 rounded bg-white/10"><div className="h-full rounded bg-sky-brand" style={{ width: `${o.progress}%` }} /></div> },
       { key: "dueAt", label: "Due", sort: o => o.dueAt || "", render: o => <span className="text-xs">{o.dueAt ? fmtDate(o.dueAt) : "—"}</span> },
     ]} />}
