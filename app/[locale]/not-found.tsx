@@ -1,7 +1,7 @@
-import { headers } from "next/headers";
-import { L, T, setLoc } from "@/lib/loc";
+import { L, T, getLoc } from "@/lib/loc";
 import { primeSite } from "@/lib/site";
-export async function generateMetadata() { const l = setLoc((await headers()).get("x-sp-locale") || undefined); await primeSite(l); return { title: { absolute: `${T("Page not found")} (404) | Stag Prime` }, robots: { index: false } }; }
+// No headers() here: it turned notFound() on static/ISR pages (e.g. /en/services/unknown) into a 500. The [locale] layout already set the request locale.
+export async function generateMetadata() { const l = getLoc(); await primeSite(l); return { title: { absolute: `${T("Page not found")} (404) | Stag Prime` }, robots: { index: false } }; }
 export default function NotFound() {
   return (<section className="relative min-h-[80vh] grid place-items-center px-5 pt-32 pb-20 text-center overflow-hidden">
     <div className="absolute inset-0 grid-bg" /><div className="absolute left-1/2 top-1/3 -translate-x-1/2 w-[32rem] h-[32rem] rounded-full bg-sky-brand/20 blur-[120px]" />
