@@ -19,8 +19,8 @@ import { consentT } from "@/lib/consentkeys";
 const display = Unbounded({ subsets: ["latin"], variable: "--font-display", weight: ["500", "700", "800"], display: "swap" });
 const body = Open_Sans({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const bn = Noto_Sans_Bengali({ subsets: ["bengali"], variable: "--f-bn", weight: ["400", "700"], preload: false, display: "swap" });
-// Arabic is preloaded (RTL layout shifts badly if it swaps late); bn/hi stay lazy. --font-script is set per locale below.
-const ar = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--f-ar", weight: ["400", "700"], preload: true, display: "swap", adjustFontFallback: false });
+// Arabic: preloaded + display:optional so the hero text (LCP) paints immediately with the system Arabic fallback instead of waiting on the web font.
+const ar = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--f-ar", weight: ["400", "700"], preload: true, display: "optional", adjustFontFallback: false });
 const hi = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--f-hi", weight: ["400", "700"], preload: false, display: "swap" });
 export function generateStaticParams() { return locales.map(locale => ({ locale })); }
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
