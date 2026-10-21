@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       {services.map((s, i) => (
         <a key={s.slug} href={L(`/services/${s.slug}`)} className="reveal glass glow-card group relative overflow-hidden rounded-3xl p-8">
           <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-20 blur-3xl group-hover:opacity-50 transition" style={{ background: s.color }} />
-          <div className="flex justify-between"><span className="grid place-items-center w-12 h-12 rounded-2xl" style={{ background: `${s.color}22` }}><Icon name={s.icon} color={s.color} className="w-6 h-6" /></span><span className="font-display text-xs text-slate-500">0{i + 1}</span></div>
+          <div className="flex justify-between"><span className="grid place-items-center w-12 h-12 rounded-2xl" style={{ background: `${s.color}22` }}><Icon name={s.icon} color={s.color} className="w-6 h-6" /></span><span className="font-display text-xs text-slate-300">0{i + 1}</span></div>
           <h2 className="mt-6 font-display text-xl font-bold text-white">{T(s.title)}</h2><p className="mt-3 text-slate-400">{T(s.intro)}</p>
           <ul className="mt-5 space-y-2 text-sm text-slate-300">{s.subs.map(x => <li key={x.t} className="flex gap-2"><span style={{ color: s.color }}>▸</span>{T(x.t)}</li>)}</ul>
           <span className="mt-6 inline-block text-sm font-semibold" style={{ color: s.color }}>{T("View details")} →</span>
