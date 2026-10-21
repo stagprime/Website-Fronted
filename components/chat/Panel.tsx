@@ -5,7 +5,7 @@ import type { ChatProps } from "./Launcher";
 type Msg = { id: string; sender: "visitor" | "ai" | "agent" | "system"; body: string; file?: string | null; createdAt: string };
 type Conv = { id: string; status: string; name?: string | null } | null;
 const inp = "w-full rounded-xl bg-navy-950/80 border border-white/10 px-3.5 py-2.5 text-sm text-white placeholder:text-slate-400 focus:border-sky-brand focus:outline-none focus:ring-2 focus:ring-sky-brand/30";
-export default function Panel({ t, locale, contact, onClose }: ChatProps & { onClose: () => void }) {
+export default function Panel({ t, locale, contact, greeting, onClose }: ChatProps & { onClose: () => void }) {
   const [conv, setConv] = useState<Conv>(null); const [msgs, setMsgs] = useState<Msg[]>([]); const [loading, setLoading] = useState(true);
   const [caps, setCaps] = useState({ ai: false, agents: false }); const [typing, setTyping] = useState<string | null>(null);
   const [err, setErr] = useState(""); const [busy, setBusy] = useState(false); const [lead, setLead] = useState(false);
@@ -51,7 +51,7 @@ export default function Panel({ t, locale, contact, onClose }: ChatProps & { onC
       </div>
       {loading ? <div className="flex-1 grid place-items-center text-sm text-slate-300">…</div> : !conv || conv.status === "closed" ? (
         <div className="flex-1 overflow-y-auto p-5">
-          <p className="font-display text-lg font-bold text-white">{t["Hi! How can we help?"]}</p>
+          <p data-testid="chat-greeting" className="font-display text-lg font-bold text-white">{greeting || t["Hi! How can we help?"]}</p>
           <p className="mt-1 text-sm text-slate-300">{conv?.status === "closed" ? t["This chat was closed. Start a new one any time."] : offline ? t["Our team is offline right now — leave a message and we'll email you back."] : t["Ask about services, packages, prices or Sentinel. We usually reply within minutes."]}</p>
           {lead ? <p role="status" className="mt-6 text-area-lime text-sm">{t["Thanks! We'll get back to you by email soon."]}</p> :
           <form onSubmit={start} className="mt-5 grid gap-3">

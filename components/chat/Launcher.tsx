@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { track } from "@/lib/analytics";
 // The panel (and its SSE logic) is only downloaded when the visitor opens chat → no Lighthouse cost.
 const Panel = dynamic(() => import("./Panel"), { ssr: false });
-export type ChatProps = { t: Record<string, string>; locale: string; contact: { whatsapp: string; telegram: string; tel: string; phone: string } };
+export type ChatProps = { greeting?: string; t: Record<string, string>; locale: string; contact: { whatsapp: string; telegram: string; tel: string; phone: string } };
 const I = {
   chat: <path d="M4 4h16a2 2 0 012 2v10a2 2 0 01-2 2H8l-4 4V6a2 2 0 012-2z" />,
   wa: <path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.4-.7-2.8-1.1-4.6-4-4.8-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z" />,
@@ -26,7 +26,7 @@ export default function ChatLauncher(p: ChatProps) {
   const c = (label: string) => () => track("Contact", { method: label });
   const item = "group flex items-center gap-3 rounded-full ps-4 pe-1.5 py-1.5 text-sm font-semibold text-white shadow-lg shadow-black/40 transition hover:scale-[1.03]";
   return (
-    <div className="contact-dock fixed z-[60] bottom-4 end-4 flex flex-col items-end gap-3">
+    <div data-testid="contact-dock" className="contact-dock fixed z-[60] bottom-4 end-4 flex flex-col items-end gap-3">
       {chat && <Panel {...p} onClose={() => setChat(false)} />}
       {menu && !chat && <div id="sp-dock" className="flex flex-col items-end gap-2.5" role="menu" aria-label={t["Contact options"]}>
         <button role="menuitem" onClick={open} className={`${item} bg-blue-brand`}>{t["Live chat"]}<span className="grid place-items-center w-9 h-9 rounded-full bg-white/15"><svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">{I.chat}</svg></span></button>

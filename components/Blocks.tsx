@@ -15,10 +15,17 @@ import { GigPackages } from "@/components/Gig";
 import { ProductCard } from "@/components/Store";
 import { CmsForm, type CmsField } from "@/components/CmsForm";
 import { formByKey } from "@/lib/cms/forms";
+import { db } from "@/lib/db";
 
 const sp = { sm: "h-8", md: "h-16", lg: "h-32" } as Record<string, string>;
 const H = ({ k, h, light }: { k?: string; h?: string; light?: boolean }) => <>{k && <Kicker light={light}>{k}</Kicker>}{h && <h2 className={`font-display text-3xl sm:text-5xl font-bold leading-[1.1] tracking-tight ${light ? "text-navy-900" : "text-white"}`}>{h}</h2>}</>;
 const img = (src?: string) => !src ? "" : src;
+/** Per-locale alt text from the media library (Media.alt JSON {locale: text}) for /media/<path> URLs; falls back to English. */
+async function mediaAlts(srcs: string[]): Promise<Record<string, string>> {
+  const paths = srcs.filter(u => u?.startsWith("/media/")).map(u => decodeURIComponent(u.slice(7).split("?")[0])); if (!paths.length) return {};
+  const loc = getLoc(); const rows = await db.media.findMany({ where: { path: { in: paths } }, select: { path: true, alt: true } }).catch(() => []);
+  return Object.fromEntries(rows.map(r => { let a: Record<string, string> = {}; try { a = JSON.parse(r.alt || "{}"); } catch { /* bad json */ } return [`/media/${r.path}`, a[loc] || a.en || ""]; }));
+}
 function yt(u: string) { const m = u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{6,})/); if (m) return `https://www.youtube-nocookie.com/embed/${m[1]}`; const v = u.match(/vimeo\.com\/(\d+)/); return v ? `https://player.vimeo.com/video/${v[1]}` : ""; }
 
 export async function Block({ s }: { s: Section }) {
@@ -53,10 +60,10 @@ export async function Block({ s }: { s: Section }) {
       return (<section className={`${wrap} py-14`}><dl className="grid grid-cols-2 md:grid-cols-4 gap-6">{items.map((i, n) => <div key={n} className="glass rounded-3xl p-6"><dt className="text-sm text-slate-300">{i.label}</dt><dd className="font-display text-4xl font-extrabold text-white">{i.value}</dd></div>)}</dl></section>); }
     case "steps": { const items = list<{ title: string; text: string }>(s, "items");
       return (<section className={`${wrap} py-16`}><H k={txt(s, "kicker", "")} h={txt(s, "heading", "")} /><ol className="mt-8 grid md:grid-cols-4 gap-5">{items.map((i, n) => <li key={n} className="glass rounded-3xl p-6"><span className="font-display text-sky-brand text-sm">0{n + 1}</span><h3 className="mt-2 font-display text-lg font-bold text-white">{i.title}</h3><p className="mt-2 text-sm text-slate-300">{i.text}</p></li>)}</ol></section>); }
-    case "image": { const src = img(setting(s, "src")); if (!src) return null;
-      return (<figure className={`${s.settings?.wide ? "" : wrap} py-10`}><img src={src} alt={txt(s, "alt", "")} className="w-full rounded-3xl" loading="lazy" />{txt(s, "caption", "") && <figcaption className="mt-3 text-center text-sm text-slate-400">{txt(s, "caption", "")}</figcaption>}</figure>); }
-    case "gallery": { const ims = (s.settings?.images as { src: string; alt: string }[] | undefined) || [];
-      return (<section className={`${wrap} py-14`}><H h={txt(s, "heading", "")} /><div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">{ims.filter(i => i.src).map((i, n) => <img key={n} src={i.src} alt={i.alt || ""} loading="lazy" className="aspect-square w-full rounded-2xl object-cover" />)}</div></section>); }
+    case "image": { const src = img(setting(s, "src")); if (!src) return null; const alt = txt(s, "alt", "") || (await mediaAlts([src]))[src] || "";
+      return (<figure className={`${s.settings?.wide ? "" : wrap} py-10`}><img src={src} alt={alt} className="w-full rounded-3xl" loading="lazy" />{txt(s, "caption", "") && <figcaption className="mt-3 text-center text-sm text-slate-400">{txt(s, "caption", "")}</figcaption>}</figure>); }
+    case "gallery": { const ims = (s.settings?.images as { src: string; alt: string }[] | undefined) || []; const ma = await mediaAlts(ims.map(i => i.src));
+      return (<section className={`${wrap} py-14`}><H h={txt(s, "heading", "")} /><div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">{ims.filter(i => i.src).map((i, n) => <img key={n} src={i.src} alt={i.alt || ma[i.src] || ""} loading="lazy" className="aspect-square w-full rounded-2xl object-cover" />)}</div></section>); }
     case "form": { const f = await formByKey(setting(s, "formKey") || ""); if (!f) return null;
       return (<section className={`${wrap} py-16 max-w-4xl`}><H h={txt(s, "heading", f.title)} /><div className="mt-8"><CmsForm formKey={f.key} locale={l} fields={f.fields as CmsField[]} submit={f.submit} success={f.success} /></div></section>); }
     case "contactInfo": { const c = site.contact;
