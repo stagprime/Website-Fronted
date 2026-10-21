@@ -81,7 +81,11 @@ export type Settings = typeof DEFAULTS;
 export type SettingKey = keyof Settings;
 export const SETTING_KEYS = Object.keys(DEFAULTS) as SettingKey[];
 
-const load = unstable_cache(async (): Promise<Partial<Record<string, unknown>>> => {
+// In-process write version: bumped on every settings write so the next read misses the data cache and reads the DB
+// (revalidateTag alone is stale-while-revalidate, which could serve or even re-store a pre-write value after rapid edits).
+const V = globalThis as unknown as { __spSettingsV?: number }; V.__spSettingsV ??= Date.now(); // per boot, so a restart never reuses an old persisted entry
+const load = () => loadV(String(V.__spSettingsV));
+const loadV = (v: string) => unstable_cache(async (): Promise<Partial<Record<string, unknown>>> => {
   if (!process.env.DATABASE_URL) return {};
   try {
     const { db } = await import("@/lib/db");
@@ -90,7 +94,7 @@ const load = unstable_cache(async (): Promise<Partial<Record<string, unknown>>> 
     for (const r of rows) { try { out[r.key] = JSON.parse(r.value); } catch { /* ignore bad JSON */ } }
     return out;
   } catch { return {}; } // DB unreachable at build time → defaults
-}, ["site-settings"], { tags: ["settings"], revalidate: 300 });
+}, ["site-settings", v], { tags: ["settings"], revalidate: 300 })();
 
 /** Object overrides merge shallowly over the default; arrays/scalars replace it. */
 function merge<T>(def: T, v: unknown): T {
@@ -104,4 +108,4 @@ export async function getSettings(): Promise<Settings> {
   for (const k of SETTING_KEYS) (s as Record<string, unknown>)[k] = merge(DEFAULTS[k], o[k]);
   return s;
 }
-export function invalidateSettings(key?: string) { revalidateTag("settings"); if (key) revalidateTag(`content:${key}`); }
+export function invalidateSettings(key?: string) { V.__spSettingsV = (V.__spSettingsV || 0) + 1; revalidateTag("settings"); if (key) revalidateTag(`content:${key}`); }
