@@ -17,9 +17,10 @@
     "db:seed:cms": "tsx prisma/seed-cms.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "node scripts/e2e-admin.mjs && node scripts/e2e-roles.mjs && node scripts/e2e-fixes.mjs",
+    "test:e2e": "node scripts/e2e-site.mjs",
     "test:unit": "tsx scripts/unit.test.mts",
-    "vercel-build": "node scripts/vercel-db.mjs && npm run build"
+    "vercel-build": "node scripts/vercel-db.mjs && npm run build",
+    "security": "node scripts/security-scan.mjs ."
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
