@@ -7,7 +7,7 @@ import { MerchGrid } from "./Galleries";
 import Icon from "./Icon";
 export function ProductCard({ p }: { p: Product }) {
   const l = getLoc(); const { storeCats } = S(); const cat = storeCats.find(c => c.slug === p.cat);
-  const detail = p.slug === "stag-sentinel" ? "/stag-sentinel" : null;
+  const detail = ({ "stag-sentinel": "/stag-sentinel", "store-panel": "/store-panel" } as Record<string, string>)[p.slug] ?? null; const priced = p.kind === "saas" && /^\$/.test(p.p);
   return (
     <article id={p.slug} className="reveal glass glow-card rounded-3xl p-6 flex flex-col scroll-mt-28">
       {p.img ? <Image src={p.img} alt={`${p.n} — ${T("product screenshot")}`} width={1024} height={640} sizes="(max-width:640px) 90vw, 22rem" className="h-36 w-full rounded-2xl object-cover object-left-top" />
@@ -15,10 +15,10 @@ export function ProductCard({ p }: { p: Product }) {
       {cat && <a href={L(`/store/${cat.slug}`)} className="mt-4 text-[11px] uppercase tracking-[.2em]" style={{ color: cat.color }}>{T(cat.t)}</a>}
       <h3 className="mt-2 font-display font-bold text-white">{detail ? <a href={L(detail)} className="hover:text-sky-brand">{T(p.n)}</a> : T(p.n)}</h3>
       <p className="mt-2 text-sm text-slate-300 flex-1">{T(p.d)}</p>
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><span className="font-display text-xl text-white">{p.kind === "digital" ? p.p : p.kind === "free" ? T("Free") : T("Team plans")}</span>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><span className="font-display text-xl text-white">{p.kind === "digital" ? p.p : p.kind === "free" ? T("Free") : priced ? p.p : T("Team plans")}</span>
         {p.kind === "digital" && <BuyButton id={`product:${p.slug}`} locale={l} label={T("Buy with Stripe")} busy={T("Opening checkout…")} cursor={T("Buy")} />}
         {p.kind === "free" && <a href={L(`/contact?topic=${encodeURIComponent(p.n)}`)} className="rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-5 py-2.5 text-sm font-semibold text-white">{T("Get it free")}</a>}
-        {p.kind === "saas" && <a href={L(detail || "/contact")} className="rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-5 py-2.5 text-sm font-semibold text-white">{T("Request access")}</a>}
+        {p.kind === "saas" && <a href={L(detail || "/contact")} className="rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-5 py-2.5 text-sm font-semibold text-white">{T(priced ? "Subscribe" : "Request access")}</a>}
       </div>
     </article>
   );
