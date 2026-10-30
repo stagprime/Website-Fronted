@@ -15,7 +15,8 @@ export async function POST(req: Request) {
   const tags = (Array.isArray(b.tags) ? b.tags : []).filter((t): t is string => typeof t === "string" && /^[\w:./-]{1,80}$/.test(t)).slice(0, 50);
   const paths = (Array.isArray(b.paths) ? b.paths : []).map(p => Array.isArray(p) ? p : [p]).filter(p => typeof p[0] === "string" && p[0].startsWith("/") && p[0].length < 300).slice(0, 100) as [string, string?][];
   for (const t of tags) { if (t === "settings" || t.startsWith("content:")) invalidateSettings(t.startsWith("content:") ? t.slice(8) : undefined); else if (t === "redirects") bumpRedirects(); else revalidateTag(t); }
-  for (const [p, type] of paths) revalidatePath(p, type === "layout" ? "layout" : "page");
+  // A path without a type is a literal URL (/en/blog/x). Passing "page" would make Next read it as a route pattern (/[locale]/blog/[slug]) and match nothing.
+  for (const [p, type] of paths) { if (type === "layout" || type === "page") revalidatePath(p, type); else revalidatePath(p); }
   return NextResponse.json({ ok: true, tags: tags.length, paths: paths.length });
 }
 export function GET() { return new NextResponse("Method Not Allowed", { status: 405 }); }
