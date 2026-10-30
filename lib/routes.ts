@@ -1,7 +1,7 @@
 import { getSettings } from "./settings";
 import { posts } from "@/content/posts";
 // Every indexable route (without locale prefix). Used by sitemaps, the crawler test and the SEO admin.
-export const pageRoutes = ["", "/services", "/ventures", "/portfolio", "/portfolio/stag-vpn", "/case-studies", "/store", "/stag-sentinel", "/pricing", "/about", "/team", "/partners", "/careers", "/job-apply", "/reviews", "/investors", "/faq", "/contact", "/editorial-policy", "/privacy", "/terms"];
+export const pageRoutes = ["", "/services", "/ventures", "/portfolio", "/portfolio/stag-vpn", "/case-studies", "/store", "/stag-sentinel", "/store-panel", "/pricing", "/about", "/team", "/partners", "/careers", "/job-apply", "/reviews", "/investors", "/faq", "/contact", "/editorial-policy", "/privacy", "/terms"];
 export async function routeGroups() {
   const s = await getSettings(); let custom: string[] = []; let dbPosts: string[] = [];
   try { const { db, dbReady } = await import("./db"); if (dbReady()) {
