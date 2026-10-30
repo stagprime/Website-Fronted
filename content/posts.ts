@@ -1,5 +1,5 @@
 import { a } from "./posts/a"; import { b } from "./posts/b"; import { c } from "./posts/c"; import { d } from "./posts/d"; import { e } from "./posts/e"; import { f } from "./posts/f"; import { g } from "./posts/g"; import { x1 } from "./posts/x1"; import { x2 } from "./posts/x2"; import { x3 } from "./posts/x3"; import { x4 } from "./posts/x4"; import { x5 } from "./posts/x5"; import { x6 } from "./posts/x6"; import { x7 } from "./posts/x7"; import { x8 } from "./posts/x8"; import { x9 } from "./posts/x9"; import { x10 } from "./posts/x10";
-export type Post = { slug: string; cat: string; svc: string; kw: string; t: string; d: string; body: string; faq?: string[][]; cornerstone?: boolean; date?: string };
+export type Post = { slug: string; cat: string; svc: string; kw: string; t: string; d: string; body: string; faq?: string[][]; cornerstone?: boolean; date?: string; /** Cover image chosen in the CMS (overrides the category art). */ img?: string };
 // Publication dates are set when the site goes live (ISO). Content is evergreen and reviewed on update.
 const XS = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10];
 /** Inserts the expansion section before the article's closing "how we help" section (its last H2). */

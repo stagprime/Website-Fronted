@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, Button, Card, Field, Input, Modal, Select, Textarea, Toggle, api, confirmTyped, fmtDate, money, toast } from "@/components/admin/kit";
-import { TONE } from "../ui";
+import { TONE, LABEL } from "../ui";
 type Ev = { id: string; status: string; note: string | null; kind: string; internal: boolean; actorId: string | null; createdAt: string };
 type D = { order: { id: string; email: string; title: string; item: string; kind: string; amount: number; currency: string; status: string; progress: number; dueAt: string | null; deliveredAt: string | null; createdAt: string; refundedAmount: number; couponCode: string | null; requirements: unknown; assigneeId: string | null; stripePaymentId: string | null; locale: string; user: { id: string; name: string | null; email: string } | null; events: Ev[]; files: { id: string; name: string; kind: string; createdAt: string }[]; messages: { id: string; fromStaff: boolean; body: string; file: string | null; createdAt: string }[] }; people: { id: string; name: string | null; email: string }[]; team: { id: string; name: string | null; email: string }[]; customerOrders: number; stripe: boolean; url: string };
 const STAT = ["pending", "in_progress", "delivered", "revision", "completed", "cancelled"];
@@ -22,7 +22,7 @@ export default function UI({ id }: { id: string }) {
     const j = await api<{ full: boolean }>("/api/admin/orders", { method: "POST", body: { action: "refund", id, amount: cents, reason: rf.reason, manual: rf.manual } }); if (j) { toast(j.full ? "Fully refunded" : "Partial refund issued"); setRefund(false); load(); } };
   return <>
     <div className="mb-6 flex flex-wrap items-start justify-between gap-4"><div><Link href="/admin/orders" className="text-xs text-slate-400 hover:text-white">← Orders</Link><h1 className="mt-1 font-display text-2xl font-bold text-white">{o.title}</h1>
-      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-400"><Badge tone={TONE[o.status]}>{o.status.replace("_", " ")}</Badge>{late && <Badge tone="red">late</Badge>}<code>{o.id}</code> · {o.item} · {fmtDate(o.createdAt)}</p></div>
+      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-400"><Badge tone={TONE[o.status]}>{LABEL(o.status)}</Badge>{late && <Badge tone="red">late</Badge>}<code>{o.id}</code> · {o.item} · {fmtDate(o.createdAt)}</p></div>
       <div className="flex flex-wrap gap-2"><a href={`/api/admin/preview?path=${encodeURIComponent(`/${o.locale}/account/orders/${o.id}`)}`} target="_blank" rel="noreferrer"><Button kind="ghost" size="sm">Client view ↗</Button></a>{left > 0 && <Button kind="danger" size="sm" onClick={() => setRefund(true)}>Refund…</Button>}</div></div>
     <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
       <div className="grid gap-6">
@@ -44,7 +44,7 @@ export default function UI({ id }: { id: string }) {
       </div>
       <div className="grid content-start gap-6">
         <Card title="Status">
-          <div className="grid gap-3"><Select aria-label="Order status" value={o.status} options={STAT.map(s => [s, s.replace("_", " ")])} onChange={async e => { const s = e.target.value; const n = prompt(`Optional note for the client (status → ${s.replace("_", " ")}):`) ?? ""; await put({ action: "status", status: s, note: n }, "Status updated — client emailed"); }} disabled={o.status === "refunded"} />
+          <div className="grid gap-3"><Select aria-label="Order status" value={o.status} options={STAT.map(s => [s, LABEL(s)])} onChange={async e => { const s = e.target.value; const n = prompt(`Optional note for the client (status → ${s.replace("_", " ")}):`) ?? ""; await put({ action: "status", status: s, note: n }, "Status updated — client emailed"); }} disabled={o.status === "refunded"} />
             <Field label="Assignee"><Select value={o.assigneeId || ""} options={[["", "Unassigned"], ...d.team.map(t => [t.id, t.name || t.email] as [string, string])]} onChange={e => put({ action: "assign", assigneeId: e.target.value }, "Assigned")} /></Field>
             <Field label="Due date"><Input type="datetime-local" defaultValue={o.dueAt ? new Date(o.dueAt).toISOString().slice(0, 16) : ""} onBlur={e => put({ action: "due", dueAt: e.target.value || null }, "Due date saved")} /></Field>
             {o.status === "delivered" && o.deliveredAt && <p className="rounded-lg bg-purple-500/10 p-2 text-xs text-purple-200">Delivered {fmtDate(o.deliveredAt)}. Auto-completes after 3 days without a response (configurable).</p>}</div>

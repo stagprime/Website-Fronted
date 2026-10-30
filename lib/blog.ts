@@ -6,7 +6,7 @@ export async function dbPosts(locale = "en"): Promise<Post[]> {
   try {
     const rows = await db.blogPost.findMany({ where: { locale: { in: [locale, "en"] }, OR: [{ status: "published" }, { status: "scheduled", publishAt: { lte: new Date() } }] }, orderBy: { publishAt: "desc" } });
     const m = new Map<string, Post>();
-    for (const r of rows) if (!m.has(r.slug) || r.locale === locale) m.set(r.slug, { slug: r.slug, cat: r.category, svc: r.service || "", kw: r.keyword || "", t: r.title, d: r.description, body: r.body, faq: (typeof r.faq === "string" ? JSON.parse(r.faq) : r.faq) as string[][] | undefined, date: (r.publishAt || r.createdAt).toISOString().slice(0, 10) });
+    for (const r of rows) if (!m.has(r.slug) || r.locale === locale) m.set(r.slug, { slug: r.slug, cat: r.category, svc: r.service || "", kw: r.keyword || "", t: r.title, d: r.description, body: r.body, faq: (typeof r.faq === "string" ? JSON.parse(r.faq) : r.faq) as string[][] | undefined, date: (r.publishAt || r.createdAt).toISOString().slice(0, 10), ...(r.image && { img: r.image }) });
     return [...m.values()];
   } catch { return []; }
 }

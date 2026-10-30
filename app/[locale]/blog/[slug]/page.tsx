@@ -20,13 +20,13 @@ export async function generateMetadata({ params }: P) { await loadLoc(params);  
 export default async function Page({ params }: P) { await loadLoc(params); const { services } = S(); 
   const { slug } = await params; const p = await getPost(slug, getLoc()); if (!p) notFound();
   const l = getLoc(); const svc = services.find(s => s.slug === p.svc); const related = posts.filter(x => x.slug !== p.slug && x.svc === p.svc).slice(0, 2);
-  const ld = { "@context": "https://schema.org", "@type": "BlogPosting", headline: T(p.t), description: T(p.d), image: `${SITE}/img/ai/${postImg(p.cat)}.webp`, datePublished: p.date, dateModified: p.date, wordCount: words(p.body), inLanguage: p.translated ? l : "en", keywords: p.kw,
+  const ld = { "@context": "https://schema.org", "@type": "BlogPosting", headline: T(p.t), description: T(p.d), image: p.img ? (p.img.startsWith("http") ? p.img : `${SITE}${p.img}`) : `${SITE}/img/ai/${postImg(p.cat)}.webp`, datePublished: p.date, dateModified: p.date, wordCount: words(p.body), inLanguage: p.translated ? l : "en", keywords: p.kw,
     author: { "@type": "Person", "@id": `${SITE}/#founder`, name: founderOf().name, jobTitle: founderOf().jobTitle, url: `${SITE}/${l}/about` }, publisher: { "@id": `${SITE}/#org` }, mainEntityOfPage: `${SITE}/${l}/blog/${p.slug}` };
   return (<>
     <JsonLd data={breadcrumb([["Blog", "/blog"], [p.t, `/blog/${p.slug}`]])} /><JsonLd data={ld} />
     {p.faq && <JsonLd data={{ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: p.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }} />}
     <ViewContent name={p.t} type="article" />
-    <PageHero img={ai(postImg(p.cat))} kicker={p.cat} title={p.t} sub={p.d} crumbs={[["Blog", "/blog"], [p.t, `/blog/${p.slug}`]]}>
+    <PageHero img={p.img || ai(postImg(p.cat))} kicker={p.cat} title={p.t} sub={p.d} crumbs={[["Blog", "/blog"], [p.t, `/blog/${p.slug}`]]}>
       <p className="mt-6 text-sm text-slate-400"><time dateTime={p.date}>{p.date}</time> · {Math.max(3, Math.round(words(p.body) / 230))} {T("min read")} · Stag Prime</p>
     </PageHero>
     <div className={`${wrap} pb-20 grid lg:grid-cols-[1fr_17rem] gap-12`}>
