@@ -3,7 +3,7 @@ import { useState } from "react";
 import { track } from "@/lib/analytics";
 import { safeNext } from "@/lib/safe-next";
 const inp = "w-full rounded-xl bg-navy-950/70 border border-white/10 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-brand focus:outline-none focus:ring-2 focus:ring-sky-brand/30";
-const lbl = "block text-sm text-slate-300 mb-1.5";
+const lbl = "block text-base leading-normal text-slate-200 mb-2";
 export type FT = Record<string, string>;
 const tf = (t: FT | undefined, k: string) => t?.[k] ?? k;
 function useSubmit(type: string, t?: FT) {

@@ -15,7 +15,7 @@ export function ProductCard({ p }: { p: Product }) {
       {cat && <a href={L(`/store/${cat.slug}`)} className="mt-4 text-[11px] uppercase tracking-[.2em]" style={{ color: cat.color }}>{T(cat.t)}</a>}
       <h3 className="mt-2 font-display font-bold text-white">{detail ? <a href={L(detail)} className="hover:text-sky-brand">{T(p.n)}</a> : T(p.n)}</h3>
       <p className="mt-2 text-sm text-slate-300 flex-1">{T(p.d)}</p>
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><span className="font-display text-xl text-white">{p.kind === "digital" ? p.p : p.kind === "free" ? T("Free") : priced ? p.p : T("Team plans")}</span>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><span className="font-display text-xl text-white">{p.kind === "digital" ? p.p : p.kind === "free" ? T("Free") : priced ? T(p.p) : T("Team plans")}</span>
         {p.kind === "digital" && <BuyButton id={`product:${p.slug}`} locale={l} label={T("Buy with Stripe")} busy={T("Opening checkout…")} cursor={T("Buy")} />}
         {p.kind === "free" && <a href={L(`/contact?topic=${encodeURIComponent(p.n)}`)} className="rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-5 py-2.5 text-sm font-semibold text-white">{T("Get it free")}</a>}
         {p.kind === "saas" && <a href={L(detail || "/contact")} className="rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-5 py-2.5 text-sm font-semibold text-white">{T(priced ? "Subscribe" : "Request access")}</a>}
@@ -24,9 +24,9 @@ export function ProductCard({ p }: { p: Product }) {
   );
 }
 export function CatNav({ active }: { active?: string }) {
-  const chip = (href: string, label: string, on: boolean, color = "#48BDED") => <a key={href} href={L(href)} aria-current={on ? "page" : undefined} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${on ? "text-navy-950" : "border-white/15 text-slate-200 hover:text-white"}`} style={on ? { background: color, borderColor: color } : undefined}>{label}</a>;
+  const chip = (href: string, label: string, on: boolean, color = "#48BDED") => <a key={href} href={L(href)} aria-current={on ? "page" : undefined} className={`rounded-full border px-4 py-2.5 text-sm font-semibold leading-snug transition ${on ? "text-navy-950" : "border-white/15 text-slate-200 hover:text-white"}`} style={on ? { background: color, borderColor: color } : undefined}>{label}</a>;
   const { storeCats } = S();
-  return <nav aria-label={T("Store categories")} className="flex flex-wrap gap-2">{chip("/store", T("All products"), !active)}{storeCats.map(c => chip(`/store/${c.slug}`, T(c.t), active === c.slug, c.color))}</nav>;
+  return <nav aria-label={T("Store categories")} className="flex flex-wrap gap-3">{chip("/store", T("All products"), !active)}{storeCats.map(c => chip(`/store/${c.slug}`, T(c.t), active === c.slug, c.color))}</nav>;
 }
 export function CatSection({ slug, heading = true }: { slug: string; heading?: boolean }) {
   const { storeCats, products, services } = S(); const c = storeCats.find(x => x.slug === slug); if (!c) return null; const items = products.filter(p => p.cat === slug); const svc = services.find(s => s.slug === c.svc);

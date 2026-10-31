@@ -20,7 +20,9 @@ export default function Motion() {
         // split reveal: wrap words of [data-split] (inside the single H1 too)
         // Phones: skip the above-the-fold (hero H1) split — re-wrapping its words after hydration made the H1 a late LCP (~1.3 s).
         const heroSplit = matchMedia("(min-width: 1024px)").matches;
-        document.querySelectorAll<HTMLElement>("[data-split]").forEach(el => { if (el.dataset.split !== "scroll" && !heroSplit) return;
+        // Word masks (overflow:hidden) slice Bengali matras and Arabic marks. Leave those headlines as plain text.
+        const complexScript = /^(bn|ar|hi)$/.test(document.documentElement.lang);
+        if (!complexScript) document.querySelectorAll<HTMLElement>("[data-split]").forEach(el => { if (el.dataset.split !== "scroll" && !heroSplit) return;
           const walk = (n: Node) => { n.childNodes.forEach(c => { if (c.nodeType === 3 && c.textContent!.trim()) { const f = document.createDocumentFragment(); c.textContent!.split(/(\s+)/).forEach(w => { if (!w.trim()) { f.append(w); return; } const o = document.createElement("span"); o.className = "sw"; const i = document.createElement("span"); i.className = "swi"; i.textContent = w; o.append(i); f.append(o); }); c.replaceWith(f); } else if (c.nodeType === 1) walk(c); }); };
           walk(el);
           gsap.from(el.querySelectorAll(".swi"), { yPercent: 110, duration: 1, ease: "power4.out", stagger: 0.06, delay: 0.15, scrollTrigger: el.dataset.split === "scroll" ? { trigger: el, start: "top 85%" } : undefined });

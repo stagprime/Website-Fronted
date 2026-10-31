@@ -10,6 +10,7 @@ export default function Consent({ cfg, t, policy }: { cfg: Cfg; t: Record<string
   const path = usePathname();
   const any = Object.values(cfg).some(v => v && (typeof v === "string" ? v : Object.keys(v).length));
   useEffect(() => { const m = document.cookie.match(/sp_consent=([^;]+)/); setC(m ? decodeURIComponent(m[1]) : ""); const h = () => setOpen(true); addEventListener("sp:consent", h); return () => removeEventListener("sp:consent", h); }, []);
+  useEffect(() => { const show = c === "" || open; document.documentElement.classList.toggle("has-consent", show); return () => document.documentElement.classList.remove("has-consent"); }, [c, open]);
   useEffect(() => { if (c) track("PageView", { page_path: path }); }, [c, path]);
   const save = (v: string) => {
     document.cookie = `sp_consent=${encodeURIComponent(v)};path=/;max-age=15552000;samesite=lax`; setC(v); setOpen(false);
@@ -25,7 +26,7 @@ export default function Consent({ cfg, t, policy }: { cfg: Cfg; t: Record<string
     {cfg.tiktok && ad && <Script id="tt" strategy="lazyOnload">{`!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.load=function(e){var n="https://analytics.tiktok.com/i18n/pixel/events.js";var a=d.createElement("script");a.async=!0;a.src=n+"?sdkid="+e+"&lib="+t;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(a,s)};ttq.load('${cfg.tiktok}');ttq.page();}(window,document,'ttq');`}</Script>}
     {cfg.linkedin && ad && <Script id="li" strategy="lazyOnload">{`window._linkedin_partner_id="${cfg.linkedin}";(function(l){var s=document.getElementsByTagName("script")[0];var b=document.createElement("script");b.async=true;b.src="https://snap.licdn.com/li.lms-analytics/insight.min.js";s.parentNode.insertBefore(b,s)})();`}</Script>}
     {(c === "" || open) && (
-      <div role="dialog" aria-modal="false" aria-labelledby="ck-t" className="fixed z-[76] bottom-24 sm:bottom-6 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 sm:start-6 sm:translate-x-0 rtl:sm:translate-x-0 w-[min(94vw,28rem)] rounded-2xl glass shadow-2xl shadow-black/60 p-5">
+      <div role="dialog" aria-modal="false" aria-labelledby="ck-t" className="fixed z-[76] bottom-4 start-4 w-[min(92vw,26rem)] rounded-2xl glass shadow-2xl shadow-black/60 p-5">
         <p id="ck-t" className="font-display text-sm font-bold text-white">{t.title}</p>
         <p className="mt-2 text-xs text-slate-300">{t.body} <a href={policy} className="underline text-sky-brand">{t.policy}</a></p>
         {open && <div className="mt-3 space-y-2 text-sm text-slate-200">

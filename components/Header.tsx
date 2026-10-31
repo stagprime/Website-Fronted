@@ -23,25 +23,28 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
   const g = nav.find(n => n.label === open);
   return (
     <header className="fixed top-0 inset-x-0 z-40" onMouseLeave={() => setOpen(null)}>
-      <div className="mx-auto max-w-7xl px-3 sm:px-8 mt-3">
-        <nav aria-label={ui["Main"]} className={`rounded-2xl flex items-center justify-between px-3 sm:px-4 py-2.5 transition ${scrolled || open ? "glass shadow-2xl shadow-black/40" : "border border-transparent"}`}>
-          <a href={L("/")} className="flex items-center gap-2.5" aria-label={ui["Stag Prime home"]}>
-            <img src={brand.emblem} alt="" width={46} height={56} className="h-12 w-auto sm:h-14 drop-shadow-[0_0_12px_rgba(72,189,237,.35)]" />
-            <span className="font-display font-extrabold tracking-wide text-white leading-none text-lg sm:text-xl">Stag <span className="grad-text">PRIME</span><span className="block text-[8px] sm:text-[9px] font-medium tracking-[.42em] text-slate-400 mt-1.5">DIGITAL AGENCY</span></span>
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 mt-3">
+        <nav aria-label={ui["Main"]} className={`rounded-2xl flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 transition ${scrolled || open ? "glass shadow-2xl shadow-black/40" : "border border-transparent"}`}>
+          <a href={L("/")} className="brand-lockup flex items-center gap-4 shrink-0" aria-label={ui["Stag Prime home"]}>
+            <img src={brand.emblem} alt="" width={48} height={56} className="h-11 w-auto sm:h-12 shrink-0" />
+            <span className="flex flex-col gap-1.5">
+              <span className="brand-name font-display font-extrabold text-white text-lg sm:text-xl leading-none">Stag <span className="grad-text">PRIME</span></span>
+              <span className="brand-tag font-display text-[11px] sm:text-xs font-semibold text-slate-200 leading-none">DIGITAL AGENCY</span>
+            </span>
           </a>
-          <ul className="hidden lg:flex items-center gap-1 text-sm">
+          <ul className="site-nav hidden lg:flex flex-1 items-center justify-center gap-0.5 min-w-0 text-sm">
             {nav.map((n, ni) => (
               <li key={ni} onMouseEnter={() => setOpen(n.cols ? n.label : null)}>
                 {n.cols ? (
                   <button aria-expanded={open === n.label} onClick={() => setOpen(open === n.label ? null : n.label)} onFocus={() => setOpen(n.label)}
-                    className={`flex items-center gap-1 rounded-full px-4 py-2 transition ${open === n.label ? "bg-white/10 text-white" : "text-slate-300 hover:text-white"}`}>
+                    className={`flex items-center gap-1 rounded-full px-2.5 xl:px-3.5 py-2 leading-snug whitespace-nowrap transition ${open === n.label ? "bg-white/10 text-white" : "text-slate-300 hover:text-white"}`}>
                     {n.label}<svg className={`w-3 h-3 transition ${open === n.label ? "rotate-180" : ""}`} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 4.5l3 3 3-3" /></svg>
                   </button>
-                ) : <a href={L(n.href)} className="block rounded-full px-4 py-2 text-slate-300 hover:text-white">{n.label}</a>}
+                ) : <a href={L(n.href)} className="block rounded-full px-2.5 xl:px-3.5 py-2 leading-snug whitespace-nowrap text-slate-300 hover:text-white">{n.label}</a>}
               </li>
             ))}
           </ul>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <a href={L("/login")} className="hidden xl:inline text-sm text-slate-300 hover:text-white px-2">{ui["Login"]}</a>
             <div className="relative" onMouseLeave={() => setLang(false)}>
               <button aria-label={ui["Language"]} aria-expanded={lang} aria-haspopup="true" onClick={() => setLang(!lang)} className="flex items-center gap-1 text-xs border border-white/15 rounded-full px-3 py-2 text-slate-200 hover:text-white uppercase">🌐 {locale}</button>
@@ -49,7 +52,7 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
                 {Object.entries(names).map(([l, n]) => <li key={l}><a href={swap(l)} hrefLang={l} lang={l} onClick={() => pick(l)} aria-current={l === locale ? "true" : undefined} className={`flex justify-between rounded-xl px-3 py-2 text-sm ${l === locale ? "bg-sky-brand/15 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>{n}<span className="text-xs uppercase text-slate-400">{l}</span></a></li>)}
               </ul>}
             </div>
-            <a href={L("/contact")} className="hidden sm:inline-block rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-brand/20">{ui["Book a Call"]}</a>
+            <a href={L("/contact")} className="hidden lg:inline-block whitespace-nowrap rounded-full bg-gradient-to-r from-sky-brand to-blue-brand px-3.5 xl:px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-brand/20">{ui["Book a Call"]}</a>
             <button className="lg:hidden grid place-items-center w-11 h-11 rounded-xl glass" aria-label={ui["Open menu"]} aria-expanded={drawer} onClick={() => setDrawer(true)}>
               <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
             </button>
@@ -105,7 +108,7 @@ export default function Header({ nav, ui, locale, names, brand }: { nav: G[]; ui
       {drawer && (
         <div className="lg:hidden fixed inset-0 z-[60] bg-navy-950 flex flex-col" role="dialog" aria-modal="true" aria-label={ui["Menu"]}>
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-            <span className="flex items-center gap-2.5"><img src={brand.emblem} alt="" className="h-11 w-auto" /><span className="font-display font-extrabold text-white text-lg">Stag <span className="grad-text">PRIME</span></span></span>
+            <span className="brand-lockup flex items-center gap-4"><img src={brand.emblem} alt="" className="h-11 w-auto shrink-0" /><span className="flex flex-col gap-1.5"><span className="brand-name font-display font-extrabold text-white text-lg leading-none">Stag <span className="grad-text">PRIME</span></span><span className="brand-tag font-display text-[11px] font-semibold text-slate-200 leading-none">DIGITAL AGENCY</span></span></span>
             <button aria-label={ui["Close menu"]} onClick={() => setDrawer(false)} className="grid place-items-center w-11 h-11 rounded-xl glass text-white text-2xl">×</button>
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-4">
