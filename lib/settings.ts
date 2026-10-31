@@ -107,19 +107,12 @@ function merge<T>(def: T, v: unknown): T {
  * Keep the CMS product, and fill `img` from the code default for that slug when the stored entry has none.
  * An explicit CMS `img` still wins. Re-copy every setting with `SEED_FORCE=settings` only when a full overwrite is intended.
  */
-const LEGACY_STORE_NAMES = new Set(["Stag Prime Store Panel", "Stag Prime Store"]);
-const LEGACY_STORE_DESC = "Multi-tenant store admin for your own shop: your own products, your own delivery — no dropshipping.";
-/** Fill a blank image from code, and replace the retired Store Panel name so a stored CMS row still shows OwnStore by Stag Prime. */
 function fillProductImages(products: Settings["products"]): Settings["products"] {
-  const bySlug = new Map(DEFAULTS.products.map(p => [p.slug, p]));
+  const imgs = new Map(DEFAULTS.products.map(p => [p.slug, p.img]));
   return products.map(p => {
-    const base = bySlug.get(p.slug);
-    if (!base) return p;
-    const img = typeof p.img === "string" && p.img.trim() ? p.img : base.img;
-    if (p.slug !== "store-panel") return img && img !== p.img ? { ...p, img } : p;
-    const n = !p.n || LEGACY_STORE_NAMES.has(p.n) ? base.n : p.n;
-    const d = !p.d || p.d === LEGACY_STORE_DESC ? base.d : p.d;
-    return { ...p, n, d, ...(img ? { img } : {}) };
+    const img = imgs.get(p.slug);
+    if (!img || (typeof p.img === "string" && p.img.trim())) return p;
+    return { ...p, img };
   });
 }
 /** The old default favicon was the full wordmark SVG, which browser tabs do not show. Treat that legacy value as the shield icon. */
