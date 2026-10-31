@@ -22,12 +22,15 @@ export function generateStaticParams() { return locales.map(locale => ({ locale 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params; setLoc(locale); const { brand, seoDefaults } = await primeSite(locale);
   const title = T(en.meta.title), description = seoDefaults.defaultDescription || T(en.meta.description);
+  const icons: Metadata["icons"] = brand.favicon === "/favicon.ico"
+    ? { icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/favicon-32.png", type: "image/png", sizes: "32x32" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }] }
+    : { icon: brand.favicon, apple: "/apple-touch-icon.png" };
   return {
     metadataBase: new URL(SITE), title: { default: title, template: seoDefaults.titleTemplate || `%s | ${brand.titleSuffix}` }, description,
     alternates: { types: { "application/rss+xml": "/rss.xml" }, canonical: `/${locale}`, languages: { ...Object.fromEntries(locales.map(l => [l, `/${l}`])), "x-default": "/en" } },
     openGraph: { type: "website", url: `/${locale}`, siteName: brand.name, locale: ogLocale[locale], title, description, images: [{ url: brand.ogImage, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", site: brand.twitter, title, description, images: [brand.ogImage] },
-    icons: { icon: brand.favicon }, verification: { google: process.env.GOOGLE_SITE_VERIFICATION, yandex: process.env.YANDEX_VERIFICATION, other: Object.fromEntries(([["msvalidate.01", process.env.BING_SITE_VERIFICATION], ["p:domain_verify", process.env.PINTEREST_VERIFICATION], ["facebook-domain-verification", process.env.FACEBOOK_DOMAIN_VERIFICATION], ["naver-site-verification", process.env.NAVER_VERIFICATION], ["baidu-site-verification", process.env.BAIDU_VERIFICATION]] as [string, string | undefined][]).filter(([, v]) => v) as [string, string][]) }, robots: { index: true, follow: true },
+    icons, verification: { google: process.env.GOOGLE_SITE_VERIFICATION, yandex: process.env.YANDEX_VERIFICATION, other: Object.fromEntries(([["msvalidate.01", process.env.BING_SITE_VERIFICATION], ["p:domain_verify", process.env.PINTEREST_VERIFICATION], ["facebook-domain-verification", process.env.FACEBOOK_DOMAIN_VERIFICATION], ["naver-site-verification", process.env.NAVER_VERIFICATION], ["baidu-site-verification", process.env.BAIDU_VERIFICATION]] as [string, string | undefined][]).filter(([, v]) => v) as [string, string][]) }, robots: { index: true, follow: true },
   };
 }
 /** Organization JSON-LD — built from Admin → Branding (brand, contact, offices) and SEO → Schema (sameAs, types, extra JSON). */
