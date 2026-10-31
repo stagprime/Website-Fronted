@@ -45,7 +45,7 @@ export const ventures: Venture[] = [
     points: ["Amazon KDP publishing", "Monetized YouTube channels", "Organic traffic strategy"], links: [{ n: "YouTube @stagprime", u: "https://youtube.com/@stagprime" }, { n: "Medium", u: "https://medium.com/@stagprime" }] },
   { slug: "software", title: "SaaS & Software", tag: "Software", color: "#3FB7D3", icon: "cloud", short: "Our own tools & products",
     body: "We build software for ourselves first — from VPN infrastructure to POD automation scripts and design systems — and sell the tools we rely on internally.",
-    points: ["Stag Prime Sentinel — infrastructure monitoring", "POD Automation Script", "Agency UI Kit (Figma)", "Custom SaaS for clients"], links: [{ n: "Stag Prime Sentinel", u: "https://sentinel.stagprime.com/" }] },
+    points: ["Stag Prime Sentinel — infrastructure monitoring", "POD Automation Script", "Agency UI Kit (Figma)", "Custom SaaS for clients"], links: [{ n: "Stag Prime Sentinel", u: "https://stag-prime-sentinel.vercel.app" }] },
 ];
 export type Product = { slug: string; n: string; d: string; p: string; color: string; cat: string; kind: "digital" | "free" | "saas"; img?: string; url?: string; feats?: string[] };
 export const products: Product[] = [
@@ -53,7 +53,7 @@ export const products: Product[] = [
   { slug: "agency-ui-kit", n: "Agency UI Kit (Figma)", d: "The exact design system used for Stag Prime.", p: "$49", color: "#9649CB", cat: "design-dev", kind: "digital" },
   { slug: "kdp-cover-templates", n: "KDP Cover Templates", d: "50+ editable high-res book covers for Amazon.", p: "$15", color: "#48BDED", cat: "amazon-youtube", kind: "digital" },
   { slug: "pod-automation-script", n: "POD Automation Script", d: "Python script to automate uploads on Redbubble.", p: "$29", color: "#D33F49", cat: "amazon-youtube", kind: "digital" },
-  { slug: "stag-sentinel", n: "Stag Prime Sentinel", d: "Role-based infrastructure monitoring for approved teams and client workspaces — every server, every client, one secure view.", p: "Request access", color: "#3FB7D3", cat: "software", kind: "saas", img: "/img/real/sentinel-login.webp", url: "https://sentinel.stagprime.com/",
+  { slug: "stag-sentinel", n: "Stag Prime Sentinel", d: "Role-based infrastructure monitoring for approved teams and client workspaces — every server, every client, one secure view.", p: "Request access", color: "#3FB7D3", cat: "software", kind: "saas", img: "/img/real/sentinel-login.webp", url: "https://stag-prime-sentinel.vercel.app",
     feats: ["Multi-client infrastructure in one dashboard", "Protected server access", "Administrator, staff, view-only and client roles", "Separate client workspaces", "Secure cookie-based sessions — passwords never stored in the browser"] },
   { slug: "store-panel", n: "Stag Prime Store Panel", d: "Multi-tenant store admin for your own shop: your own products, your own delivery — no dropshipping.", p: "$20/month", color: "#1A936F", cat: "software", kind: "saas", url: "https://stag-prime-store-panel.vercel.app/subscribe",
     feats: ["Your own store admin — every shop is a separate tenant", "List and manage your own products and stock", "Run your own delivery and order fulfilment", "No dropshipping — you own the catalogue and the customer", "Simple monthly plan: $20/month"] },
