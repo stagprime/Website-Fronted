@@ -27,6 +27,8 @@ async function upsertOnce<T>(group: string, exists: () => Promise<T | null>, cre
 async function main() {
   const c = { created: 0, kept: 0, forced: 0 } as Record<string, number>;
   // 1. Settings: every key (brand, theme, contact, nav, footer, services, products, gigs, pricing, faqs, ventures, schema, llms, robots, …)
+  // Existing rows are kept. lib/settings.ts still fills a blank products[].img from the code default (store-panel dashboard)
+  // and rewrites the legacy brand.favicon "/logo.svg" to "/favicon.ico", so production picks those up without SEED_FORCE.
   for (const key of SETTING_KEYS) {
     const r = await upsertOnce("settings", () => db.setting.findUnique({ where: { key } }), () => db.setting.create({ data: { key, value: JSON.stringify(DEFAULTS[key]) } }),
       async row => { await db.revision.create({ data: { entity: "setting", entityId: key, data: row.value, actor: "seed" } }); await db.setting.update({ where: { key }, data: { value: JSON.stringify(DEFAULTS[key]) } }); });

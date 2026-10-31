@@ -14,7 +14,7 @@ import { gigs } from "@/content/gigs";
 import { team } from "@/content/team";
 
 export const DEFAULTS = {
-  brand: { name: "Stag Prime", legal: "Stag Prime LLC", tagline: "Your Ultimate Growth Partner.", slogan: "Your Ultimate Growth Partner", logo: "/logo.svg", logoWide: "/logo-wide.svg", emblem: "/emblem.svg", favicon: "/logo.svg", ogImage: "/og.jpg", twitter: "@stag_prime", titleSuffix: "Stag Prime" },
+  brand: { name: "Stag Prime", legal: "Stag Prime LLC", tagline: "Your Ultimate Growth Partner.", slogan: "Your Ultimate Growth Partner", logo: "/logo.svg", logoWide: "/logo-wide.svg", emblem: "/emblem.svg", favicon: "/favicon.ico", ogImage: "/og.jpg", twitter: "@stag_prime", titleSuffix: "Stag Prime" },
   theme: { navy950: "#061733", navy900: "#0B1631", navy800: "#0E2346", sky: "#48BDED", blue: "#1071B2", red: "#D33F49", green: "#1A936F", lime: "#20BF55", purple: "#9649CB", teal: "#3FB7D3", displayFont: "", displayFontUrl: "", bodyFont: "", bodyFontUrl: "", customCss: "" },
   contact: { ...CONTACT, telegramHandle: "@stagprime", phoneE164: "+13073964184",
     offices: [
@@ -102,10 +102,33 @@ function merge<T>(def: T, v: unknown): T {
   if (def && typeof def === "object" && !Array.isArray(def) && typeof v === "object" && !Array.isArray(v)) return { ...def, ...(v as object) } as T;
   return v as T;
 }
-export async function getSetting<K extends SettingKey>(key: K): Promise<Settings[K]> { return merge(DEFAULTS[key], (await load())[key]); }
+/**
+ * A stored `products` row replaces the whole array, so a new default `img` would never reach production.
+ * Keep the CMS product, and fill `img` from the code default for that slug when the stored entry has none.
+ * An explicit CMS `img` still wins. Re-copy every setting with `SEED_FORCE=settings` only when a full overwrite is intended.
+ */
+function fillProductImages(products: Settings["products"]): Settings["products"] {
+  const imgs = new Map(DEFAULTS.products.map(p => [p.slug, p.img]));
+  return products.map(p => {
+    const img = imgs.get(p.slug);
+    if (!img || (typeof p.img === "string" && p.img.trim())) return p;
+    return { ...p, img };
+  });
+}
+/** The old default favicon was the full wordmark SVG, which browser tabs do not show. Treat that legacy value as the shield icon. */
+function normalizeBrand(brand: Settings["brand"]): Settings["brand"] {
+  if (brand.favicon && brand.favicon !== "/logo.svg") return brand;
+  return { ...brand, favicon: "/favicon.ico" };
+}
+function applyRuntimeDefaults<K extends SettingKey>(key: K, value: Settings[K]): Settings[K] {
+  if (key === "products") return fillProductImages(value as Settings["products"]) as Settings[K];
+  if (key === "brand") return normalizeBrand(value as Settings["brand"]) as Settings[K];
+  return value;
+}
+export async function getSetting<K extends SettingKey>(key: K): Promise<Settings[K]> { return applyRuntimeDefaults(key, merge(DEFAULTS[key], (await load())[key])); }
 export async function getSettings(): Promise<Settings> {
   const o = await load(); const s = {} as Settings;
-  for (const k of SETTING_KEYS) (s as Record<string, unknown>)[k] = merge(DEFAULTS[k], o[k]);
+  for (const k of SETTING_KEYS) (s as Record<string, unknown>)[k] = applyRuntimeDefaults(k, merge(DEFAULTS[k], o[k]));
   return s;
 }
 export function invalidateSettings(key?: string) { V.__spSettingsV = (V.__spSettingsV || 0) + 1; revalidateTag("settings"); if (key) revalidateTag(`content:${key}`); }
