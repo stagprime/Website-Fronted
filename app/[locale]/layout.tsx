@@ -61,8 +61,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const css = themeCss(site.theme), fonts = googleFontsHref(site.theme), cfg = trackingConfig(site.tracking);
   return (
     <html lang={locale} dir={rtlLocales.includes(locale) ? "rtl" : "ltr"} className={`${display.variable} ${body.variable}`} style={SCRIPT[locale] ? { ["--font-script" as string]: SCRIPT[locale] } : undefined}>
-      {/* Phones: bn/ar/hi render entirely in the device's script font (no Unbounded/Open Sans download → hero text is not re-painted late). Desktop keeps the brand fonts. */}
-      <head>{fonts && <link rel="stylesheet" href={fonts} />}<style dangerouslySetInnerHTML={{ __html: css }} />{SCRIPT[locale] && <style dangerouslySetInnerHTML={{ __html: `@media (max-width:1023px){html:root{--font-body:${SCRIPT[locale]};--font-display:${SCRIPT[locale]}}}` }} />}</head>
+      {/* bn/ar/hi use the device script face at every width (globals.css). Unbounded has no glyphs for those scripts, and its tight metrics clip them. */}
+      <head>{fonts && <link rel="stylesheet" href={fonts} />}<style dangerouslySetInnerHTML={{ __html: css }} /></head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd()) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd(locale)) }} />

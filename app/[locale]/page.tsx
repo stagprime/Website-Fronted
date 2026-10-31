@@ -43,20 +43,22 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const stats: [string, string, string][] = S().homeStats.map(x => [x.value, x.label, x.tilt]);
   const legacy: Record<string, React.ReactNode> = {
     hero: (
-      <section className="relative min-h-[100svh] overflow-hidden flex items-end pb-16 sm:pb-20">
-        <div className="absolute inset-0 grid-bg" />
-        <CursorGlow />
-        <div className="absolute right-0 top-0 h-full w-full lg:w-[58%] opacity-50 lg:opacity-90" data-parallax="8">
-          <Art src={hero} alt={T("Stag Prime shield emblem surrounded by app, analytics and video icons")} w={1024} h={768} priority sizes="(max-width:1024px) 100vw, 60vw" className="h-full w-full" />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/60 to-transparent" /><div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-transparent to-navy-950/40" />
+      <section className="home-hero relative">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 grid-bg" />
+          <CursorGlow />
+          <div className="absolute inset-y-0 end-0 h-full w-full lg:w-[46%] opacity-80 lg:opacity-100" data-parallax="8">
+            <Art src={hero} alt={T("Stag Prime shield emblem surrounded by app, analytics and video icons")} w={1024} h={768} priority sizes="(max-width:1024px) 100vw, 46vw" className="h-full w-full !object-[72%_center]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/75 to-navy-950/10 rtl:bg-gradient-to-l" /><div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-transparent to-navy-950/30" />
+          </div>
         </div>
-        <div className={`${wrap} w-full pt-36`}>
-          <span className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs text-slate-300"><span className="h-2 w-2 rounded-full bg-area-lime pulse-ring" />{H("hero", "badge", "US LLC · Global in-house team · Est. operators")}</span>
-          {heroTitle ? <h1 data-split className="mt-6 font-display font-extrabold text-white text-[2.6rem] leading-[1.05] sm:text-7xl xl:text-[6.5rem] tracking-[-.02em] max-w-6xl">{heroTitle}</h1> : getLoc() !== "en" ? <h1 data-split className="mt-6 font-display font-extrabold text-white text-[2.6rem] leading-[1.05] sm:text-7xl xl:text-[6.5rem] tracking-[-.02em] max-w-6xl">{T("We Build, Scale, and We Dominate.")}</h1> : <h1 data-split className="mt-6 font-display font-extrabold text-white text-[2.9rem] leading-[.98] sm:text-7xl xl:text-[7.5rem] tracking-[-.02em] max-w-6xl">
+        <div className={`${wrap} hero-copy relative w-full pt-28 sm:pt-32 pb-16 sm:pb-20`}>
+          <span className="inline-flex max-w-full items-center gap-2 rounded-full glass px-4 py-1.5 text-xs leading-relaxed text-slate-300"><span className="h-2 w-2 shrink-0 rounded-full bg-area-lime pulse-ring" />{H("hero", "badge", "US LLC · Global in-house team · Est. operators")}</span>
+          {heroTitle ? <h1 data-split className="mt-6 font-display font-extrabold text-white text-4xl leading-snug sm:text-6xl lg:text-7xl max-w-3xl">{heroTitle}</h1> : getLoc() !== "en" ? <h1 data-split className="mt-6 font-display font-extrabold text-white text-4xl leading-snug sm:text-6xl lg:text-7xl max-w-3xl">{T("We Build, Scale, and We Dominate.")}</h1> : <h1 data-split className="mt-6 font-display font-extrabold text-white text-4xl leading-[1.08] sm:text-6xl lg:text-7xl max-w-3xl">
             We Build, Scale, and We{" "}
             <span className="inline-flex items-center align-middle">D<span aria-hidden className="mx-[.04em] inline-block h-[.62em] w-[1.25em] rounded-full bg-gradient-to-r from-sky-brand to-blue-brand align-middle shadow-[0_0_40px_rgba(72,189,237,.6)] relative overflow-hidden"><img src="/emblem.svg" alt="" className="absolute left-1/2 top-1/2 h-[80%] -translate-x-1/2 -translate-y-1/2" /></span><span className="sr-only">o</span>minate.</span>
           </h1>}
-          <div className="mt-10 grid lg:grid-cols-[1fr_auto] gap-10 items-end">
+          <div className="mt-10 grid max-w-3xl sm:grid-cols-[1fr_auto] gap-8 items-end">
             <div>
               <p className="max-w-xl text-lg text-slate-300 leading-relaxed">{H("hero", "sub", t0.hero.sub)}</p>
               <div className="mt-8 flex flex-wrap gap-4"><Btn href="/contact">{H("hero", "cta1", t0.hero.cta1)} →</Btn><Btn href="/services" ghost>{H("hero", "cta2", t0.hero.cta2)}</Btn></div>

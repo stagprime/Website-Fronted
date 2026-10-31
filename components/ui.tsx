@@ -33,7 +33,7 @@ export function PageHero({ kicker, title, sub, crumbs, color = "#48BDED", img, c
   if (h && !h.visible) return doc ? <Blocks sections={doc} filter={s => s.type !== "pageHero" && s.type !== "pageCta" && s.settings?.position !== "end" && s.settings?.position !== "body"} /> : null;
   if (h) { kicker = txt(h, "kicker", kicker); const ov = txt(h, "title", ""); if (ov && (h.content?.en?.title || h.content?.[getLoc()]?.title)) title = ov; if (h.content?.[getLoc()]?.sub || h.content?.en?.sub) sub = txt(h, "sub", sub || ""); const im = h.settings?.image as string | undefined; if (im) img = im; }
   return (<>
-    <section className="relative overflow-hidden pt-36 pb-20 sm:pt-44 sm:pb-24">
+    <section className="page-hero relative pt-28 pb-16 sm:pt-32 sm:pb-20">
       <div className="absolute inset-0 grid-bg" />
       <div className="absolute -top-40 left-1/3 w-[36rem] h-[36rem] rounded-full blur-[120px] opacity-25" style={{ background: color }} />
       {img && <div className="absolute right-0 top-0 h-full hidden lg:block lg:w-[52%] lg:opacity-80" data-parallax="8" aria-hidden>
@@ -44,7 +44,7 @@ export function PageHero({ kicker, title, sub, crumbs, color = "#48BDED", img, c
         <nav aria-label="Breadcrumb" className="mb-8 text-xs text-slate-400"><ol className="flex flex-wrap gap-2"><li><a href={L("/")} className="hover:text-white">{T("Home")}</a></li>
           {crumbs.map(([n, p], i) => <li key={p} className="flex gap-2"><span aria-hidden>/</span>{i === crumbs.length - 1 ? <span className="text-slate-200" aria-current="page">{T(n)}</span> : <a href={L(p)} className="hover:text-white">{T(n)}</a>}</li>)}</ol></nav>
         <Kicker>{kicker}</Kicker>
-        <h1 data-split className="font-display text-4xl sm:text-6xl font-extrabold text-white leading-[1.05] tracking-tight max-w-4xl">{tx(title)}</h1>
+        <h1 data-split className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-snug max-w-3xl">{tx(title)}</h1>
         {sub && <p data-up className="mt-6 max-w-2xl text-lg text-slate-300 leading-relaxed">{T(sub)}</p>}
         {children}
       </div>
